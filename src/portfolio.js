@@ -12,8 +12,9 @@ const greeting = {
   username: "Erdogan ABACI",
   title: "Hi all, I'm Erdogan",
   subTitle: emoji(
-    "A passionate Full Stack Software Developer 🚀 having an experience of building Web and Mobile applications with JavaScript / Reactjs / Nodejs / React Native and some other cool libraries and frameworks."
+    "A passionate Full Stack Software Developer 🚀 having an experience of building Web and Mobile applications with JavaScript / Reactjs / Nodejs / GraphQL / Kubernetes / Docker and some other cool libraries and frameworks."
   ),
+  contactEmail:"erdoganabaci97@gmail.com",
   resumeLink:
     "https://drive.google.com/file/d/1eoVoJdSLPx1rzRlWDgS88c6RVpQROiwF/view?usp=sharing",
   displayGreeting: true // Set false to hide this section, defaults to true
@@ -114,24 +115,14 @@ const educationInfo = {
   display: true, // Set false to hide this section, defaults to true
   schools: [
     {
-      schoolName: "Harvard University",
-      logo: require("./assets/images/harvardLogo.png"),
-      subHeader: "Master of Science in Computer Science",
-      duration: "September 2017 - April 2019",
-      desc: "Participated in the research of XXX and published 3 papers.",
+      schoolName: "Manisa Celal Bayar University",
+      logo: require("./assets/images/mcbu.png"),
+      subHeader: "Bachelor of Science in Computer Science / GPA 3.24/4",
+      duration: "September 2016 - June 2020",
+      desc: "Participated Erasmus Plus Internship in the Netherlands",
       descBullets: [
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit",
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit"
+        "I completed Bachelor Degree with a honor of certificate",
       ]
-    },
-    {
-      schoolName: "Stanford University",
-      logo: require("./assets/images/stanfordLogo.png"),
-      subHeader: "Bachelor of Science in Computer Science",
-      duration: "September 2013 - April 2017",
-      desc:
-        "Ranked top 10% in the program. Took courses about Software Engineering, Web Security, Operating Systems, ...",
-      descBullets: ["Lorem ipsum dolor sit amet, consectetur adipiscing elit"]
     }
   ]
 };
@@ -147,11 +138,15 @@ const techStack = {
     },
     {
       Stack: "Backend",
-      progressPercentage: "70%"
+      progressPercentage: "95%"
     },
     {
-      Stack: "Programming",
-      progressPercentage: "60%"
+      Stack: "DevOps",
+      progressPercentage: "90%"
+    },
+    {
+      Stack: "Agile Scrum Team Collaboration",
+      progressPercentage: "95%"
     }
   ],
   displayCodersrank: false // Set true to display codersrank badges section need to changes your username in src/containers/skillProgress/skillProgress.js:17:62, defaults to false

@@ -41,8 +41,10 @@ export default function Greeting() {
               <SocialMedia />
               <div className="button-greeting-div">
                 {greeting.contactEmail ? 
+                <Button text="Contact me" href={`mailto:${greeting.contactEmail}`}/>
+                :
                 <Button text="Contact me" href="#contact" />
-                : <Button text="Contact me" href={`mailto:${greeting.contactEmail}`} /> 
+                
               
               }
               {/* href={`mailto:${greeting.contactEmail} */}
