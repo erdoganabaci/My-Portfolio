@@ -121,7 +121,7 @@ const educationInfo = {
       duration: "September 2016 - June 2020",
       desc: "Participated Erasmus Plus Internship in the Netherlands",
       descBullets: [
-        "I completed Bachelor Degree with a honor of certificate",
+        "I completed Bachelor Degree with a Certificate of Honor",
       ]
     }
   ]
