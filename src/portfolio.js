@@ -12,11 +12,11 @@ const greeting = {
   username: "Erdogan ABACI",
   title: "Hi all, I'm Erdogan",
   subTitle: emoji(
-    "A passionate Full Stack Software Developer 🚀 having an experience of building Web and Mobile applications with JavaScript / Reactjs / Nodejs / GraphQL / Kubernetes / Docker and some other cool libraries and frameworks."
+    "A passionate Full Stack Software Developer 🚀 having an experience of building Web and Mobile applications with JavaScript / Reactjs / Storybook / Styled-Components /Nodejs / GraphQL / Kubernetes / Docker and some other cool libraries and frameworks."
   ),
   contactEmail:"erdoganabaci97@gmail.com",
   resumeLink:
-    "https://drive.google.com/file/d/1eoVoJdSLPx1rzRlWDgS88c6RVpQROiwF/view?usp=sharing",
+    "https://drive.google.com/file/d/1rE25b4ZkP7ZNc62__tD1fC3CmWTr21FG/view?usp=sharing",
   displayGreeting: true // Set false to hide this section, defaults to true
 };
 
@@ -62,6 +62,10 @@ https://fontawesome.com/icons?d=gallery */
       fontAwesomeClassname: "fab fa-css3-alt"
     },
     {
+      skillName: "styled-components",
+      fontAwesomeClassname: "fab fa-bars"
+    },
+    {
       skillName: "sass",
       fontAwesomeClassname: "fab fa-sass"
     },
@@ -72,6 +76,10 @@ https://fontawesome.com/icons?d=gallery */
     {
       skillName: "reactjs",
       fontAwesomeClassname: "fab fa-react"
+    },
+    {
+      skillName: "reactjs",
+      fontAwesomeClassname: "fab fa-book"
     },
     {
       skillName: "nodejs",
