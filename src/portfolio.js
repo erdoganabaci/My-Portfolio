@@ -12,11 +12,11 @@ const greeting = {
   username: "Erdogan ABACI",
   title: "Hi all, I'm Erdogan",
   subTitle: emoji(
-    "A passionate Full Stack Software Developer 🚀 having an experience of building Web and Mobile applications with JavaScript / Reactjs / Storybook / Styled-Components /Nodejs / GraphQL / Kubernetes / Docker and some other cool libraries and frameworks."
+    "A passionate Full Stack Software Developer 🚀 having an experience of building Web and Mobile applications with JavaScript / React / Storybook / Styled-Components /Nodejs / GraphQL / Kubernetes / Docker and some other cool libraries and frameworks."
   ),
   contactEmail:"erdoganabaci97@gmail.com",
   resumeLink:
-    "https://drive.google.com/file/d/1rE25b4ZkP7ZNc62__tD1fC3CmWTr21FG/view?usp=sharing",
+    "https://drive.google.com/file/d/168KmrnZvKOMRc6pTzAkAtkhzf8xsuqd7/view?usp=sharing",
   displayGreeting: true // Set false to hide this section, defaults to true
 };
 
@@ -74,12 +74,8 @@ https://fontawesome.com/icons?d=gallery */
       fontAwesomeClassname: "fab fa-js"
     },
     {
-      skillName: "reactjs",
+      skillName: "react",
       fontAwesomeClassname: "fab fa-react"
-    },
-    {
-      skillName: "reactjs",
-      fontAwesomeClassname: "fab fa-book"
     },
     {
       skillName: "nodejs",
@@ -131,6 +127,16 @@ const educationInfo = {
       descBullets: [
         "I completed Bachelor Degree with a Certificate of Honor",
       ]
+    },
+    {
+      schoolName: "Vrije Universiteit Brussel",
+      logo: require("./assets/images/vub.png"),
+      subHeader: "Master of Science - MS, Computer Science",
+      duration: "September 2021 - September 2023",
+      // desc: "Participated Erasmus Plus Internship in the Netherlands",
+      // descBullets: [
+      //   "I completed Bachelor Degree with a Certificate of Honor",
+      // ]
     }
   ]
 };
@@ -141,20 +147,28 @@ const techStack = {
   viewSkillBars: true, //Set it to true to show Proficiency Section
   experience: [
     {
-      Stack: "Frontend/Design", //Insert stack or technology you have experience in
+      Stack: "React", //Insert stack or technology you have experience in
+      progressPercentage: "90%" //Insert relative proficiency in percentage
+    },
+    {
+      Stack: "TypeScript/JavaScript", //Insert stack or technology you have experience in
+      progressPercentage: "90%" //Insert relative proficiency in percentage
+    },
+    {
+      Stack: "Frontend", //Insert stack or technology you have experience in
       progressPercentage: "90%" //Insert relative proficiency in percentage
     },
     {
       Stack: "Backend",
-      progressPercentage: "95%"
+      progressPercentage: "80%"
     },
     {
       Stack: "DevOps",
-      progressPercentage: "90%"
+      progressPercentage: "60%"
     },
     {
       Stack: "Agile Scrum Team Collaboration",
-      progressPercentage: "95%"
+      progressPercentage: "90%"
     }
   ],
   displayCodersrank: false // Set true to display codersrank badges section need to changes your username in src/containers/skillProgress/skillProgress.js:17:62, defaults to false
@@ -361,7 +375,7 @@ const contactInfo = {
   title: emoji("Contact Me ☎️"),
   subtitle:
     "Discuss a project or just want to say hi? My Inbox is open for all.",
-  number: "+90 551 8005753",
+  number: "+31 6 47424252",
   email_address: "erdoganabaci97@gmail.com"
 };
 
