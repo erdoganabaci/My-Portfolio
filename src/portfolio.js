@@ -12,11 +12,11 @@ const greeting = {
   username: "Erdogan ABACI",
   title: "Hi all, I'm Erdogan",
   subTitle: emoji(
-    "A passionate Full Stack Software Developer 🚀 having an experience of building Web and Mobile applications with JavaScript / React / Storybook / Styled-Components /Nodejs / GraphQL / Kubernetes / Docker and some other cool libraries and frameworks."
+    "A passionate Full Stack Software Developer 🚀 having an experience of building Web and Mobile applications with JavaScript / TypeScript / Python/ Java / Kotlin / React / Scala / React Native / Angular / /Nodejs / GraphQL / Kubernetes / Docker and some other cool libraries and frameworks."
   ),
-  contactEmail:"erdoganabaci97@gmail.com",
+  contactEmail: "erdoganabaci97@gmail.com",
   resumeLink:
-    "https://drive.google.com/file/d/168KmrnZvKOMRc6pTzAkAtkhzf8xsuqd7/view?usp=sharing",
+    "https://drive.google.com/file/d/1iAcYrUkS9LSOUUEkcihT97V7A9JcH3LK/view?usp=sharing",
   displayGreeting: true // Set false to hide this section, defaults to true
 };
 
@@ -25,6 +25,7 @@ const greeting = {
 const socialMediaLinks = {
   github: "https://github.com/erdoganabaci",
   linkedin: "https://www.linkedin.com/in/erdoganabaci/",
+  twitter: "https://x.com/Mrerdogan97",
   // gmail: "saadpasta70@gmail.com",
   // gitlab: "https://gitlab.com/saadpasta",
   // facebook: "https://www.facebook.com/saad.pasta7",
@@ -119,24 +120,22 @@ const educationInfo = {
   display: true, // Set false to hide this section, defaults to true
   schools: [
     {
+      schoolName: "Vrije Universiteit Brussel",
+      logo: require("./assets/images/vub.png"),
+      subHeader: "Master of Science - MS, Computer Science / GPA 3.3/4",
+      duration: "September 2022 - September 2025"
+      // desc: "Participated Erasmus Plus Internship in the Netherlands",
+      // descBullets: [
+      //   "I completed Bachelor Degree with a Certificate of Honor",
+      // ]
+    },
+    {
       schoolName: "Manisa Celal Bayar University",
       logo: require("./assets/images/mcbu.png"),
       subHeader: "Bachelor of Science in Computer Science / GPA 3.24/4",
       duration: "September 2016 - June 2020",
       desc: "Participated Erasmus Plus Internship in the Netherlands",
-      descBullets: [
-        "I completed Bachelor Degree with a Certificate of Honor",
-      ]
-    },
-    {
-      schoolName: "Vrije Universiteit Brussel",
-      logo: require("./assets/images/vub.png"),
-      subHeader: "Master of Science - MS, Computer Science",
-      duration: "September 2021 - September 2023",
-      // desc: "Participated Erasmus Plus Internship in the Netherlands",
-      // descBullets: [
-      //   "I completed Bachelor Degree with a Certificate of Honor",
-      // ]
+      descBullets: ["I completed Bachelor Degree with a Certificate of Honor"]
     }
   ]
 };
@@ -180,13 +179,41 @@ const workExperiences = {
   display: true, //Set it to true to show workExperiences Section
   experience: [
     {
+      role: "Senior Software Developer",
+      company: "AsBuilt",
+      companylogo: require("./assets/images/asbuilt.png"),
+      date: "Sep 2023 – Present",
+      desc: "- Developing a digital drawing web application for the electrical sector, working on situation plans, circuit tables, and wire schemas.",
+      descBullets: [
+        "Built an export process for complex Leaflet diagrams with seamless PDF generation",
+        "Developed an intuitive tree dropdown for smooth component navigation",
+        "Upgraded drawing tools to support complex electrical schemas",
+        "Optimized single-line diagram generation with a refined recursive algorithm",
+        "Enforced AREI-compliant validation for electrical components",
+        "Streamlined requirement analysis to deliver clean, efficient solutions"
+      ]
+    },
+    {
+      role: "Software Developer",
+      company: "Sentigrate",
+      companylogo: require("./assets/images/sentigrate.jpeg"),
+      date: "Sep 2022 – Jun 2023",
+      desc: "- Developed software solutions in the health & wellness industry, focusing on data visualization and frontend development.",
+      descBullets: [
+        "Worked on Ecoterian, a meal planning app",
+        "Developed MyHabeat, a fitness planning application",
+        "Contributed to Inovigate, a patient data visualization platform",
+        "Implemented frontend solutions using React, Angular, and TypeScript",
+        "Utilized Git, Bitbucket, and JIRA for version control and project management"
+      ]
+    },
+    {
       role: "Software Engineer",
       company: "Turk Telekom",
       companylogo: require("./assets/images/turkTelekomIcon.png"),
-      date: "Feb 2021 – Present",
-      desc:
-        "- In Turkey's largest communication company, the R & D Department, I'm visualizing data on the map with react.Using technologies",
-    
+      date: "Feb 2021 – Sep 2023",
+      desc: "- In Turkey's largest communication company, the R & D Department, I'm visualizing data on the map with react.Using technologies",
+
       descBullets: [
         "Frontend custom React,Typescript,Javascript,    Storybook,Leaflet",
         "Version Control ,Gitlab"
@@ -197,16 +224,14 @@ const workExperiences = {
       company: "Pluxbox",
       companylogo: require("./assets/images/pluxboxIcon.jpeg"),
       date: "Sep 2020 – Feb 2021",
-      desc:
-        "I participated in highly motivated team.We are developing saas application with kubernetes microservices using highest latest technologies.These are the technologies which we use typescript,javascript,graphql,docker,  kubernetes,jira,git,bitbucket.I Developed and maintained tools for radio stations at Pluxbox."
+      desc: "I participated in highly motivated team.We are developing saas application with kubernetes microservices using highest latest technologies.These are the technologies which we use typescript,javascript,graphql,docker,  kubernetes,jira,git,bitbucket.I Developed and maintained tools for radio stations at Pluxbox."
     },
     {
       role: "Software Engineer Intern",
       company: "Vestel",
       companylogo: require("./assets/images/vestel.png"),
       date: "Marc 2020 – June 2020",
-      desc:
-        "I developed android application at Turkey's largest industrial factory.My role was developing test application"
+      desc: "I developed android application at Turkey's largest industrial factory.My role was developing test application"
     }
   ]
 };
@@ -269,18 +294,15 @@ const achievementSection = {
       footerLink: [
         {
           name: "Certification",
-          url:
-            "https://drive.google.com/file/d/0B7kazrtMwm5dYkVvNjdNWjNybWJrbndFSHpNY2NFV1p4YmU0/view?usp=sharing"
+          url: "https://drive.google.com/file/d/0B7kazrtMwm5dYkVvNjdNWjNybWJrbndFSHpNY2NFV1p4YmU0/view?usp=sharing"
         },
         {
           name: "Award Letter",
-          url:
-            "https://drive.google.com/file/d/0B7kazrtMwm5dekxBTW5hQkg2WXUyR3QzQmR0VERiLXlGRVdF/view?usp=sharing"
+          url: "https://drive.google.com/file/d/0B7kazrtMwm5dekxBTW5hQkg2WXUyR3QzQmR0VERiLXlGRVdF/view?usp=sharing"
         },
         {
           name: "Google Code-in Blog",
-          url:
-            "https://opensource.googleblog.com/2019/01/google-code-in-2018-winners.html"
+          url: "https://opensource.googleblog.com/2019/01/google-code-in-2018-winners.html"
         }
       ]
     },
@@ -292,8 +314,7 @@ const achievementSection = {
       footerLink: [
         {
           name: "View Google Assistant Action",
-          url:
-            "https://assistant.google.com/services/a/uid/000000100ee688ee?hl=en"
+          url: "https://assistant.google.com/services/a/uid/000000100ee688ee?hl=en"
         }
       ]
     },
@@ -323,8 +344,7 @@ const blogSection = {
 
   blogs: [
     {
-      url:
-        "https://blog.usejournal.com/create-a-google-assistant-action-and-win-a-google-t-shirt-and-cloud-credits-4a8d86d76eae",
+      url: "https://blog.usejournal.com/create-a-google-assistant-action-and-win-a-google-t-shirt-and-cloud-credits-4a8d86d76eae",
       title: "Win a Google Assistant Tshirt and $200 in Google Cloud Credits",
       description:
         "Do you want to win $200 and Google Assistant Tshirt by creating a Google Assistant Action in less then 30 min?"
@@ -375,15 +395,8 @@ const contactInfo = {
   title: emoji("Contact Me ☎️"),
   subtitle:
     "Discuss a project or just want to say hi? My Inbox is open for all.",
-  number: "+31 6 47424252",
+  number: "+32 456 38 63 97",
   email_address: "erdoganabaci97@gmail.com"
-};
-
-// Twitter Section
-
-const twitterDetails = {
-  userName: "Mrerdogan97", //Replace "twitter" with your twitter username without @
-  display: true // Set true to display this section, defaults to false
 };
 
 export {
@@ -400,6 +413,5 @@ export {
   blogSection,
   talkSection,
   podcastSection,
-  contactInfo,
-  twitterDetails
+  contactInfo
 };
