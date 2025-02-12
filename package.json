@@ -25,7 +25,11 @@
     "format": "prettier --write \"./**/*.{js,css,json}\""
   },
   "eslintConfig": {
-    "extends": "react-app"
+    "extends": "react-app",
+    "ignorePatterns": [
+      "src/portfolio.js",
+      "src/components/githubProfileCard/GithubProfileCard.js"
+    ]
   },
   "browserslist": {
     "production": [

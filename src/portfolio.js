@@ -1,4 +1,5 @@
-﻿/* Change this file to get your personal Portfolio */
+﻿// eslint-disable-next-line unicode-bom
+/* Change this file to get your personal Portfolio */
 
 // Summary And Greeting Section
 

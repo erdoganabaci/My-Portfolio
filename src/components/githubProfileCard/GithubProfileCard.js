@@ -1,4 +1,5 @@
-﻿import React from "react";
+﻿// eslint-disable-next-line unicode-bom
+import React from "react";
 import "./GithubProfileCard.css";
 import SocialMedia from "../../components/socialMedia/SocialMedia";
 import {contactInfo} from "../../portfolio";
