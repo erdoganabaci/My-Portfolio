@@ -17,7 +17,7 @@ const greeting = {
   ),
   contactEmail: "erdoganabaci97@gmail.com",
   resumeLink:
-    "https://drive.google.com/file/d/1iAcYrUkS9LSOUUEkcihT97V7A9JcH3LK/view?usp=sharing",
+    "https://drive.google.com/file/d/199bZAPBff4TFPj5uOMn0MbVuR5xBCBmn/view?usp=sharing",
   displayGreeting: true // Set false to hide this section, defaults to true
 };
 
