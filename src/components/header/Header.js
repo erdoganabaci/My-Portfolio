@@ -3,6 +3,7 @@ import Headroom from "react-headroom";
 import "./Header.css";
 import ToggleSwitch from "../ToggleSwitch/ToggleSwitch";
 import StyleContext from "../../contexts/StyleContext";
+import {useNavigate} from "react-router-dom";
 import {
   greeting,
   workExperiences,
@@ -15,6 +16,7 @@ import {
 
 function Header() {
   const {isDark} = useContext(StyleContext);
+  const navigate = useNavigate();
   const viewExperience = workExperiences.display;
   const viewOpenSource = openSource.display;
   const viewSkills = skillsSection.display;
@@ -73,6 +75,22 @@ function Header() {
             <a href="#contact">Contact Me</a>
           </li>
           <li>
+            <button
+              onClick={() => navigate("/chat")}
+              className="chat-button"
+              style={{
+                background: "none",
+                border: "none",
+                color: isDark ? "white" : "black",
+                cursor: "pointer",
+                padding: "15px",
+                fontSize: "16px"
+              }}
+            >
+              Chat
+            </button>
+          </li>
+          <li>
             <a href="/">
               <ToggleSwitch />
             </a>
@@ -82,4 +100,5 @@ function Header() {
     </Headroom>
   );
 }
+
 export default Header;

@@ -1,0 +1,91 @@
+:root {
+  --bg-color: #ffffff;
+  --text-color: #000000;
+  --lightBackground: #f5f5f5;
+}
+
+[data-theme="dark"] {
+  --bg-color: #1a1a1a;
+  --text-color: #ffffff;
+  --lightBackground: #2d2d2d;
+}
+
+.MuiTextField-root {
+  background-color: var(--lightBackground);
+  border-radius: 4px;
+}
+
+.MuiInputBase-root {
+  color: var(--text-color) !important;
+}
+
+.MuiOutlinedInput-notchedOutline {
+  border-color: var(--text-color) !important;
+}
+
+.MuiPaper-root.MuiAppBar-root {
+  background-color: #1976d2 !important;
+  color: white !important;
+}
+
+.MuiInputBase-root {
+  background-color: white !important;
+}
+
+.MuiButton-containedPrimary {
+  background-color: #1976d2 !important;
+}
+
+.MuiButton-containedPrimary:hover {
+  background-color: #115293 !important;
+}
+
+/* Model Selection Modal Styles */
+.MuiListItem-root.Mui-selected {
+  background-color: rgba(25, 118, 210, 0.1) !important;
+}
+
+.MuiListItem-root:hover {
+  background-color: rgba(25, 118, 210, 0.04) !important;
+}
+
+.MuiListItemText-primary {
+  font-weight: 500 !important;
+}
+
+.MuiListItemText-secondary {
+  font-size: 0.875rem !important;
+  color: rgba(0, 0, 0, 0.6) !important;
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .MuiPaper-root {
+    background-color: #1a1a1a;
+  }
+
+  /* .MuiTypography-root {
+    color: white;
+  } */
+
+  .MuiInputBase-root {
+    /* background-color: #2d2d2d !important; */
+    color: black !important;
+  }
+
+  /* .MuiOutlinedInput-notchedOutline {
+    border-color: rgba(255, 255, 255, 0.23) !important;
+  } */
+
+  .MuiListItem-root.Mui-selected {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+  }
+
+  .MuiListItem-root:hover {
+    background-color: rgba(255, 255, 255, 0.04) !important;
+  }
+
+  .MuiListItemText-secondary {
+    color: rgba(255, 255, 255, 0.7) !important;
+  }
+}
