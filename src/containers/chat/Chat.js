@@ -156,7 +156,15 @@ export default function Chat() {
   };
 
   return (
-    <Box sx={{height: "100vh", display: "flex", flexDirection: "column"}}>
+    <Box sx={{
+      display: "flex", 
+      flexDirection: "column",
+      position: "fixed",
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+    }}>
       <AppBar position="static">
         <Toolbar>
           <IconButton
@@ -211,6 +219,55 @@ export default function Chat() {
           </ListItem>
         ))}
       </MessageList>
+
+      {/* Predefined Questions Section */}
+      <Box sx={{ 
+        padding: "10px 20px", 
+        display: "flex", 
+        flexWrap: "nowrap", 
+        gap: "10px",
+        borderTop: "1px solid rgba(0, 0, 0, 0.12)",
+        backgroundColor: "#f5f5f5",
+        overflowX: "auto",
+        whiteSpace: "nowrap",
+        msOverflowStyle: "none", /* IE and Edge */
+        scrollbarWidth: "none", /* Firefox */
+        "&::-webkit-scrollbar": {
+          display: "none" /* Chrome, Safari, Opera */
+        }
+      }}>
+        {[
+          "Summarize Erdogan's education",
+          "Does Erdogan know AI?",
+          "What are Erdogan's technical skills?",
+          "What projects has Erdogan worked on?",
+          "Tell me about Erdogan's work experience"
+        ].map((question, index) => (
+          <Button
+            key={index}
+            variant="outlined"
+            size="small"
+            onClick={() => {
+              setInputText(question);
+              // Optional: automatically send the question
+              // setTimeout(() => handleSend(), 100);
+            }}
+            style={{
+              borderRadius: "18px",
+              textTransform: "none",
+              backgroundColor: "white",
+              fontSize: "0.85rem",
+              padding: "4px 12px",
+              color: "#1976d2",
+              borderColor: "#1976d2",
+              whiteSpace: "nowrap",
+              flexShrink: 0
+            }}
+          >
+            {question}
+          </Button>
+        ))}
+      </Box>
 
       <InputContainer>
         <TextField
