@@ -104,10 +104,13 @@ export default function Chat() {
   const [loadingModels] = useState(false);
   // const {isDark} = useContext(StyleContext);
 
-  const handleSend = async () => {
-    if (!inputText.trim() || loading) return;
+  const handleSend = async (predefinedQuestion) => {
+    // If we have a predefined question, use it; otherwise, use inputText
+    const question = predefinedQuestion || inputText.trim();
+    
+    // Only validate empty input when not using predefined questions
+    if ((!predefinedQuestion && !question) || loading) return;
 
-    const question = inputText.trim();
     setInputText("");
     setLoading(true);
 
@@ -247,11 +250,7 @@ export default function Chat() {
             key={index}
             variant="outlined"
             size="small"
-            onClick={() => {
-              setInputText(question);
-              // Optional: automatically send the question
-              // setTimeout(() => handleSend(), 100);
-            }}
+            onClick={() => handleSend(question)}
             style={{
               borderRadius: "18px",
               textTransform: "none",
@@ -295,7 +294,7 @@ export default function Chat() {
         <Button
           variant="contained"
           color={!inputText.trim() || loading ? "default" : "primary"}
-          onClick={handleSend}
+          onClick={() => handleSend()}
           disabled={loading || !inputText.trim()}
           style={{minWidth: "auto", padding: "0 24px"}}
         >
