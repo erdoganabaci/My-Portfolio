@@ -10,7 +10,7 @@ export const heroContent: HeroContent = {
   contactEmail: "erdoganabaci97@gmail.com",
   displayGreeting: true,
   resumeLink:
-    "https://drive.google.com/file/d/199bZAPBff4TFPj5uOMn0MbVuR5xBCBmn/view?usp=sharing",
+    "https://drive.google.com/file/d/1ZiW1dn-aBDFpm6-n3elOaZar6NXIR-b0/view",
   subtitle:
     "A passionate senior full stack software engineer with experience building web and mobile applications with JavaScript, TypeScript, Python, Java, Kotlin, React, Scala, React Native, Angular, Node.js, GraphQL, Kubernetes, Docker, and other modern tools.",
   title: "Hi all, I'm Erdogan",

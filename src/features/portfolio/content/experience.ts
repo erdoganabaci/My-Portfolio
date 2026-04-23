@@ -61,7 +61,7 @@ export const experienceContent: ExperienceContent = {
       date: "Sep 2020 - Feb 2021",
       desc:
         "Worked in a highly motivated team building a SaaS platform with Kubernetes microservices, using TypeScript, JavaScript, GraphQL, Docker, Jira, Git, and Bitbucket while developing and maintaining tools for radio stations.",
-      role: "Software Engineer Intern"
+      role: "Software Engineer"
     },
     {
       accentColor: "#be123c",
@@ -70,7 +70,7 @@ export const experienceContent: ExperienceContent = {
       date: "Mar 2020 - Jun 2020",
       desc:
         "Developed an Android test application at one of Turkey's largest industrial companies.",
-      role: "Software Engineer Intern"
+      role: "Software Engineer"
     }
   ]
 };
