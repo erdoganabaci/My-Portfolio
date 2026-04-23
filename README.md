@@ -1,8 +1,33 @@
-# Amazing Portfolio 
-[![Netlify Status](https://api.netlify.com/api/v1/badges/b62d1e01-215b-4c5f-b632-3506410829de/deploy-status)](https://app.netlify.com/sites/pedantic-jang-2bcf26/deploys)
-<p>This portfolio website created with reactjs</p>
+# Erdogan Portfolio
 
-## Env Setup
+Portfolio site rebuilt on Vite, React, TypeScript, and Tailwind with a static GitHub snapshot and an interactive CV chat route.
 
-REACT_APP_GITHUB_TOKEN = "XXXX"
-GITHUB_USERNAME = "XXX"
+## Development
+
+```bash
+npm install
+npm run dev
+```
+
+## Environment
+
+Create `.env` from `env.example` and set:
+
+```bash
+VITE_CHAT_API_URL="https://your-chat-endpoint"
+```
+
+`GITHUB_TOKEN` and `GITHUB_USERNAME` are only needed for the optional snapshot refresh:
+
+```bash
+npm run sync:github-profile
+```
+
+## Validation
+
+```bash
+npm run lint
+npm run typecheck
+npm run test
+npm run build
+```

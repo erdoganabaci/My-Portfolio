@@ -1,0 +1,81 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@font-face {
+  font-family: "Agustina Regular";
+  font-style: normal;
+  font-weight: 400;
+  src: local("Agustina Regular"),
+    url("./assets/fonts/Agustina.woff") format("woff");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Montserrat";
+  font-style: normal;
+  font-weight: 400;
+  src: local("Montserrat"),
+    url("./assets/fonts/Montserrat-Regular.ttf") format("truetype");
+  font-display: swap;
+}
+
+:root {
+  --bg: #f3ede1;
+  --surface: rgba(255, 255, 255, 0.76);
+  --surface-strong: #fffdf8;
+  --text: #10211e;
+  --muted: #50615d;
+  --border: rgba(16, 33, 30, 0.12);
+  --shadow: rgba(16, 33, 30, 0.08);
+}
+
+.dark {
+  --bg: #071513;
+  --surface: rgba(9, 24, 22, 0.8);
+  --surface-strong: #0f2421;
+  --text: #f2f7f6;
+  --muted: #a5bab5;
+  --border: rgba(242, 247, 246, 0.12);
+  --shadow: rgba(2, 6, 23, 0.38);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at top left, rgba(16, 185, 129, 0.18), transparent 28%),
+    radial-gradient(circle at top right, rgba(20, 184, 166, 0.16), transparent 22%),
+    radial-gradient(circle at bottom right, rgba(245, 158, 11, 0.12), transparent 20%),
+    var(--bg);
+  color: var(--text);
+  font-family: "Montserrat", sans-serif;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-font-smoothing: antialiased;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  cursor: pointer;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+}
+
+::selection {
+  background: rgba(16, 185, 129, 0.2);
+}
