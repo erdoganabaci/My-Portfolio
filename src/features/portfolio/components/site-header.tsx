@@ -89,7 +89,6 @@ export function SiteHeader() {
       }
     };
 
-    setIsDesktopNavigation(mediaQuery.matches);
     mediaQuery.addEventListener("change", handleMediaQueryChange);
 
     return () => {
