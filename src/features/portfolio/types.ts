@@ -81,11 +81,13 @@ export type EducationContent = {
 export type ExperienceEntry = {
   accentColor: string;
   company: string;
-  companyLogo: string;
+  companyLogo?: string;
   date: string;
   desc: string;
   descBullets?: string[];
+  location?: string;
   role: string;
+  techStack?: string[];
 };
 
 export type ExperienceContent = {

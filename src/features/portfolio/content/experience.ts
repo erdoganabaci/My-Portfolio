@@ -2,28 +2,91 @@ import asBuiltLogo from "@/assets/images/asbuilt.png";
 import pluxboxLogo from "@/assets/images/pluxboxIcon.jpeg";
 import sentigrateLogo from "@/assets/images/sentigrate.jpeg";
 import turkTelekomLogo from "@/assets/images/turkTelekomIcon.png";
-import vestelLogo from "@/assets/images/vestel.png";
 import type {ExperienceContent} from "@/features/portfolio/types";
 
 export const experienceContent: ExperienceContent = {
   display: true,
   experience: [
     {
+      accentColor: "#7c3aed",
+      company: "MonaGen",
+      date: "Jan 2026 - Present",
+      desc:
+        "Founded an AI image generation platform for prompt-based image creation, background removal, headshots, and photo restoration.",
+      location: "Brussels, Belgium",
+      role: "Founder",
+      techStack: [
+        "Cloud Functions",
+        "Node.js",
+        "React Native",
+        "Tailwind",
+        "Vertex AI",
+        "Firebase",
+        "Supabase"
+      ]
+    },
+    {
       accentColor: "#0f766e",
+      company: "AuroraChatPDF",
+      date: "Dec 2025 - Present",
+      desc:
+        "Founded an AI PDF assistant for multi-PDF chat, smart document grouping, and AI-powered document Q&A.",
+      location: "Brussels, Belgium",
+      role: "Founder",
+      techStack: [
+        "Cloud Functions",
+        "Node.js",
+        "React Native",
+        "Tailwind",
+        "Vector DB",
+        "LangChain",
+        "Text Embeddings",
+        "Firebase",
+        "Supabase"
+      ]
+    },
+    {
+      accentColor: "#0f766e",
+      company: "ZAIA",
+      date: "Apr 2025 - Present",
+      desc:
+        "Building a reliable and personalized GenAI workspace for multiple organizations.",
+      descBullets: [
+        "Owned frontend architecture for AI workflow features, including state management, API integration, validation, and maintainability.",
+        "Integrated OpenAI, Mistral, Llama, and Anthropic under one unified interface for scalable AI workflows.",
+        "Reduced duplicate AI workflow setup by 50% with reusable task templates and micro-frontend architecture.",
+        "Automated production-ready deployment with GitHub Actions CI/CD on Azure."
+      ],
+      location: "Antwerp, Belgium",
+      role: "Senior Software Engineer",
+      techStack: [
+        "React",
+        "TypeScript",
+        "RTK Query",
+        "Redux",
+        "Zod",
+        "Azure",
+        "GitHub Actions",
+        "OpenAI",
+        "Mistral",
+        "Llama",
+        "Anthropic"
+      ]
+    },
+    {
+      accentColor: "#14532d",
       company: "AsBuilt",
       companyLogo: asBuiltLogo,
-      date: "Sep 2023 - Present",
-      desc:
-        "Developing a digital drawing web application for the electrical sector, with a focus on situation plans, circuit tables, and wire schemas.",
+      date: "Sep 2023 - Mar 2025",
+      desc: "Digital drawing web application for the electrical sector.",
       descBullets: [
-        "Built an export flow for complex Leaflet diagrams with seamless PDF generation.",
-        "Developed an intuitive tree dropdown for smooth component navigation.",
-        "Upgraded drawing tools to support more complex electrical schemas.",
-        "Optimized single-line diagram generation with a refined recursive algorithm.",
-        "Enforced AREI-compliant validation for electrical components.",
-        "Streamlined requirement analysis to deliver clean, efficient solutions."
+        "Led implementation of the diagram export workflow from technical design through testing and production delivery.",
+        "Built Leaflet-based PDF export and recursive diagram generation, reducing export time from 2 minutes to 10 seconds.",
+        "Added AREI-compliant Zod validation, reducing validation-related export errors by 100% and supporting on-demand diagram/document generation."
       ],
-      role: "Senior Software Engineer"
+      location: "Brussels, Belgium",
+      role: "Senior Software Engineer",
+      techStack: ["React", "TypeScript", "Jotai", "Vitest", "Zod", "Leaflet"]
     },
     {
       accentColor: "#b45309",
@@ -31,28 +94,38 @@ export const experienceContent: ExperienceContent = {
       companyLogo: sentigrateLogo,
       date: "Sep 2022 - Jun 2023",
       desc:
-        "Developed software solutions in the health and wellness industry, focusing on data visualization and frontend development.",
+        "Developed health and wellness features for Ecoterian, MyHabeat, and Inovigate, including meal planning, fitness planning, and patient data visualization.",
       descBullets: [
-        "Worked on Ecoterian, a meal planning app.",
-        "Developed MyHabeat, a fitness planning application.",
-        "Contributed to Inovigate, a patient data visualization platform.",
-        "Implemented frontend solutions using React, Angular, and TypeScript.",
-        "Used Git, Bitbucket, and Jira for version control and project management."
+        "Built reusable frontend modules and data visualization screens.",
+        "Worked in an Agile environment with Git, Bitbucket, and JIRA to deliver maintainable product features."
       ],
-      role: "Software Engineer"
+      location: "Leuven, Belgium",
+      role: "Software Engineer",
+      techStack: [
+        "React",
+        "Angular",
+        "TypeScript",
+        "JavaScript",
+        "Flutter",
+        "Git",
+        "Bitbucket",
+        "JIRA"
+      ]
     },
     {
       accentColor: "#1d4ed8",
       company: "Turk Telekom",
       companyLogo: turkTelekomLogo,
       date: "Feb 2021 - Sep 2023",
-      desc:
-        "Visualized data on maps in the R&D department of Turkey's largest telecommunications company.",
+      desc: "Map-based telecom data visualization for Turk Telekom R&D.",
       descBullets: [
-        "Frontend stack: custom React, TypeScript, JavaScript, Storybook, and Leaflet.",
-        "Version control: GitLab."
+        "Developed interactive telecom map visualizations using React, TypeScript, Redux, and Leaflet.",
+        "Visualized 81M location data points and improved map rendering performance by 90%.",
+        "Owned testing strategy for complex map and chart interactions, increasing E2E coverage to 95% with Cypress and Jest."
       ],
-      role: "Software Engineer"
+      location: "Istanbul, Turkey",
+      role: "Software Engineer",
+      techStack: ["React", "TypeScript", "Redux", "Leaflet", "Cypress", "Jest"]
     },
     {
       accentColor: "#7c3aed",
@@ -60,17 +133,17 @@ export const experienceContent: ExperienceContent = {
       companyLogo: pluxboxLogo,
       date: "Sep 2020 - Feb 2021",
       desc:
-        "Worked in a highly motivated team building a SaaS platform with Kubernetes microservices, using TypeScript, JavaScript, GraphQL, Docker, Jira, Git, and Bitbucket while developing and maintaining tools for radio stations.",
-      role: "Software Engineer"
-    },
-    {
-      accentColor: "#be123c",
-      company: "Vestel",
-      companyLogo: vestelLogo,
-      date: "Mar 2020 - Jun 2020",
-      desc:
-        "Developed an Android test application at one of Turkey's largest industrial companies.",
-      role: "Software Engineer"
+        "Creating commercial-grade software solutions and developing radio system engine interfaces using Kubernetes microservice architecture.",
+      location: "Hilversum - Utrecht, Netherlands",
+      role: "Full Stack Engineer",
+      techStack: [
+        "Web Components",
+        "TypeScript",
+        "GraphQL",
+        "MongoDB",
+        "Docker",
+        "Kubernetes"
+      ]
     }
   ]
 };
