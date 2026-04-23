@@ -36,6 +36,26 @@ export const skillsContent: SkillsContent = {
       skillName: "React"
     },
     {
+      iconKey: "tailwindcss",
+      skillName: "Tailwind CSS"
+    },
+    {
+      iconKey: "redux",
+      skillName: "Redux"
+    },
+    {
+      iconKey: "rtk-query",
+      skillName: "RTK Query"
+    },
+    {
+      iconKey: "micro-frontends",
+      skillName: "Micro Frontends"
+    },
+    {
+      iconKey: "vite-module-federation",
+      skillName: "Vite Module Federation"
+    },
+    {
       iconKey: "nodejs",
       skillName: "Node.js"
     },
@@ -93,7 +113,7 @@ export const techStackContent: TechStackContent = {
     },
     {
       label: "DevOps",
-      progressPercentage: 60
+      progressPercentage: 90
     },
     {
       label: "Agile Scrum Collaboration",

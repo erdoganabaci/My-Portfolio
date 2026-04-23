@@ -10,9 +10,14 @@ import {
   FaReact,
   FaSass
 } from "react-icons/fa6";
-import {TbDatabase} from "react-icons/tb";
-import {SiFirebase, SiKubernetes} from "react-icons/si";
-import {TbBrackets} from "react-icons/tb";
+import {SiFirebase, SiKubernetes, SiRedux, SiTailwindcss} from "react-icons/si";
+import {
+  TbApi,
+  TbBrackets,
+  TbBrandVite,
+  TbDatabase,
+  TbHierarchy3
+} from "react-icons/tb";
 import type {SkillIconKey} from "@/features/portfolio/types";
 
 const iconMap: Record<SkillIconKey, (className: string) => React.JSX.Element> = {
@@ -24,12 +29,17 @@ const iconMap: Record<SkillIconKey, (className: string) => React.JSX.Element> = 
   html5: className => <FaHtml5 className={className} />,
   javascript: className => <FaJs className={className} />,
   kubernetes: className => <SiKubernetes className={className} />,
+  "micro-frontends": className => <TbHierarchy3 className={className} />,
   nodejs: className => <FaNodeJs className={className} />,
   npm: className => <FaNpm className={className} />,
   python: className => <FaPython className={className} />,
   react: className => <FaReact className={className} />,
+  redux: className => <SiRedux className={className} />,
+  "rtk-query": className => <TbApi className={className} />,
   sass: className => <FaSass className={className} />,
-  "styled-components": className => <TbBrackets className={className} />
+  "styled-components": className => <TbBrackets className={className} />,
+  tailwindcss: className => <SiTailwindcss className={className} />,
+  "vite-module-federation": className => <TbBrandVite className={className} />
 };
 
 type SkillIconProps = {

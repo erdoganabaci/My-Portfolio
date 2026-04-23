@@ -7,12 +7,17 @@ export type SkillIconKey =
   | "html5"
   | "javascript"
   | "kubernetes"
+  | "micro-frontends"
   | "nodejs"
   | "npm"
   | "python"
   | "react"
+  | "redux"
+  | "rtk-query"
   | "sass"
-  | "styled-components";
+  | "styled-components"
+  | "tailwindcss"
+  | "vite-module-federation";
 
 export type SocialPlatformKey =
   | "email"
