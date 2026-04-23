@@ -1,5 +1,6 @@
 export type SkillIconKey =
   | "aws"
+  | "azure"
   | "css3"
   | "database"
   | "docker"

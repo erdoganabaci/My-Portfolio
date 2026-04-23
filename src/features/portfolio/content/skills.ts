@@ -72,6 +72,10 @@ export const skillsContent: SkillsContent = {
       skillName: "AWS"
     },
     {
+      iconKey: "azure",
+      skillName: "Azure"
+    },
+    {
       iconKey: "firebase",
       skillName: "Firebase"
     },

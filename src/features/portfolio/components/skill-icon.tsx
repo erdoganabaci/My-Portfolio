@@ -13,6 +13,7 @@ import {
 import {SiFirebase, SiKubernetes, SiRedux, SiTailwindcss} from "react-icons/si";
 import {
   TbApi,
+  TbBrandAzure,
   TbBrackets,
   TbBrandVite,
   TbDatabase,
@@ -22,6 +23,7 @@ import type {SkillIconKey} from "@/features/portfolio/types";
 
 const iconMap: Record<SkillIconKey, (className: string) => React.JSX.Element> = {
   aws: className => <FaAws className={className} />,
+  azure: className => <TbBrandAzure className={className} />,
   css3: className => <FaCss3Alt className={className} />,
   database: className => <TbDatabase className={className} />,
   docker: className => <FaDocker className={className} />,
