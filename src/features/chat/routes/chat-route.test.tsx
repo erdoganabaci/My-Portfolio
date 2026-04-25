@@ -69,6 +69,14 @@ function createControlledStreamResponse() {
   };
 }
 
+function parseJsonRequestBody(body: BodyInit | null | undefined) {
+  if (typeof body !== "string") {
+    throw new Error("Expected a JSON string request body.");
+  }
+
+  return JSON.parse(body) as unknown;
+}
+
 function setScrollMetrics(
   element: HTMLElement,
   metrics: {clientHeight: number; scrollHeight: number; scrollTop: number}
@@ -149,6 +157,56 @@ describe("ChatRoute", () => {
         screen.getByText("Erdogan works across frontend and backend.")
       ).toBeInTheDocument();
     });
+  });
+
+  it("sends the previous completed turn as follow-up context", async () => {
+    const user = userEvent.setup();
+    const requestBodies: unknown[] = [];
+
+    vi.spyOn(globalThis, "fetch").mockImplementation((input, init) => {
+      if (getFetchUrl(input).endsWith("/getAvailableModels")) {
+        return Promise.resolve(
+          new Response(JSON.stringify(modelPayload), {status: 200})
+        );
+      }
+
+      requestBodies.push(parseJsonRequestBody(init?.body));
+
+      return Promise.resolve(
+        createStreamResponse([
+          `event: done\ndata: {"answer":"Answer ${requestBodies.length}"}\n\n`
+        ])
+      );
+    });
+
+    renderWithProviders(<ChatRoute />, {route: "/chat"});
+
+    await screen.findByRole("button", {name: /gpt-4o/i});
+
+    const input = screen.getByPlaceholderText(
+      "Ask about Erdogan's experience, education, skills, or projects..."
+    );
+
+    await user.type(input, "What is the recent role?");
+    await user.click(screen.getByRole("button", {name: /send/i}));
+    await screen.findByText("Answer 1");
+
+    await user.type(input, "What about that company?");
+    await user.click(screen.getByRole("button", {name: /send/i}));
+    await screen.findByText("Answer 2");
+
+    await waitFor(() => {
+      expect(requestBodies).toHaveLength(2);
+    });
+    expect(requestBodies[1]).toEqual(
+      expect.objectContaining({
+        conversationHistory: [
+          {role: "user", content: "What is the recent role?"},
+          {role: "assistant", content: "Answer 1"}
+        ],
+        question: "What about that company?"
+      })
+    );
   });
 
   it("does not force the message list to the bottom while the user is reading earlier messages", async () => {

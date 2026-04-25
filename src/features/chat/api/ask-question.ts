@@ -1,5 +1,6 @@
 import {z} from "zod";
 import {getAskQuestionStreamUrl} from "@/features/chat/api/chat-api-url";
+import type {ConversationHistoryMessage} from "@/features/chat/types";
 
 const responseSchema = z
   .object({
@@ -27,6 +28,7 @@ const errorEventSchema = z.object({
 });
 
 type AskQuestionInput = {
+  conversationHistory?: ConversationHistoryMessage[];
   model: string;
   onToken?: (token: string) => void;
   question: string;
@@ -34,6 +36,7 @@ type AskQuestionInput = {
 };
 
 export async function askQuestion({
+  conversationHistory = [],
   model,
   onToken,
   question,
@@ -41,6 +44,7 @@ export async function askQuestion({
 }: AskQuestionInput) {
   const response = await fetch(getAskQuestionStreamUrl(), {
     body: JSON.stringify({
+      conversationHistory,
       model,
       question,
       vectorData

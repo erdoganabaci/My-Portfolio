@@ -23,6 +23,14 @@ function createStreamResponse(events: string[]) {
   );
 }
 
+function parseJsonRequestBody(body: BodyInit | null | undefined) {
+  if (typeof body !== "string") {
+    throw new Error("Expected a JSON string request body.");
+  }
+
+  return JSON.parse(body) as unknown;
+}
+
 describe("askQuestion", () => {
   beforeEach(() => {
     vi.stubEnv("VITE_CHAT_API_URL", "https://example.com/functions");
@@ -44,7 +52,13 @@ describe("askQuestion", () => {
       ])
     );
 
+    const conversationHistory = [
+      {role: "user" as const, content: "What was the previous role?"},
+      {role: "assistant" as const, content: "It was Senior Software Engineer."}
+    ];
+
     const answer = await askQuestion({
+      conversationHistory,
       model: "openai/gpt-4o",
       onToken,
       question: "What does Erdogan do?",
@@ -58,6 +72,13 @@ describe("askQuestion", () => {
       "https://example.com/functions/askCVQuestionStream",
       expect.objectContaining({
         method: "POST"
+      })
+    );
+    expect(parseJsonRequestBody(fetchMock.mock.calls[0]?.[1]?.body)).toEqual(
+      expect.objectContaining({
+        conversationHistory,
+        model: "openai/gpt-4o",
+        question: "What does Erdogan do?"
       })
     );
   });
