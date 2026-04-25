@@ -4,12 +4,25 @@ import {afterEach, beforeEach, describe, expect, it, vi} from "vitest";
 import {ChatRoute} from "@/features/chat/routes/chat-route";
 import {renderWithProviders} from "@/testing/render";
 
+const modelPayload = {
+  models: [{id: "openai/gpt-4o", name: "GPT-4o"}]
+};
+
+function getFetchUrl(input: RequestInfo | URL) {
+  if (typeof input === "string") {
+    return input;
+  }
+
+  if (input instanceof URL) {
+    return input.toString();
+  }
+
+  return input.url;
+}
+
 describe("ChatRoute", () => {
   beforeEach(() => {
-    vi.stubEnv(
-      "VITE_CHAT_API_URL",
-      "https://example.com/functions/askCVQuestion"
-    );
+    vi.stubEnv("VITE_CHAT_API_URL", "https://example.com/functions");
   });
 
   afterEach(() => {
@@ -21,14 +34,23 @@ describe("ChatRoute", () => {
     const user = userEvent.setup();
     let resolveResponse: ((value: Response) => void) | null = null;
 
-    vi.spyOn(globalThis, "fetch").mockImplementation(
-      () =>
-        new Promise(resolve => {
-          resolveResponse = resolve;
-        })
-    );
+    vi.spyOn(globalThis, "fetch").mockImplementation(input => {
+      if (getFetchUrl(input).endsWith("/getAvailableModels")) {
+        return Promise.resolve(
+          new Response(JSON.stringify(modelPayload), {status: 200})
+        );
+      }
+
+      return new Promise(resolve => {
+        resolveResponse = resolve;
+      });
+    });
 
     renderWithProviders(<ChatRoute />, {route: "/chat"});
+
+    expect(
+      await screen.findByRole("button", {name: /gpt-4o/i})
+    ).toBeInTheDocument();
 
     await user.type(
       screen.getByPlaceholderText(
@@ -60,23 +82,50 @@ describe("ChatRoute", () => {
     });
   });
 
-  it("shows a useful error when the env is missing", async () => {
+  it("renders models returned by the chat API in the picker", async () => {
     const user = userEvent.setup();
 
-    vi.unstubAllEnvs();
+    vi.spyOn(globalThis, "fetch").mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          models: [{id: "remote/model", name: "Remote Model"}]
+        }),
+        {status: 200}
+      )
+    );
 
     renderWithProviders(<ChatRoute />, {route: "/chat"});
 
     await user.click(
-      screen.getByRole("button", {
-        name: "Summarize Erdogan's education."
-      })
+      await screen.findByRole("button", {name: /remote model/i})
     );
 
-    await waitFor(() => {
+    expect(screen.getAllByRole("button", {name: /remote model/i})).toHaveLength(
+      2
+    );
+  });
+
+  it("shows a useful error when the env is missing", async () => {
+    vi.stubEnv("VITE_CHAT_API_URL", "");
+
+    renderWithProviders(<ChatRoute />, {route: "/chat"});
+
+    expect(
+      await screen.findByText("VITE_CHAT_API_URL is not configured.")
+    ).toBeInTheDocument();
+  });
+
+  it("shows a useful error when models cannot be loaded", async () => {
+    vi.spyOn(globalThis, "fetch").mockResolvedValue(
+      new Response(null, {status: 500})
+    );
+
+    renderWithProviders(<ChatRoute />, {route: "/chat"});
+
+    await waitFor(() =>
       expect(
-        screen.getByText("VITE_CHAT_API_URL is not configured.")
-      ).toBeInTheDocument();
-    });
+        screen.getByText("Failed to load available chat models.")
+      ).toBeInTheDocument()
+    );
   });
 });

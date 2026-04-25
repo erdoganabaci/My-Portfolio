@@ -14,8 +14,11 @@ npm run dev
 Create `.env` from `env.example` and set:
 
 ```bash
-VITE_CHAT_API_URL="https://your-chat-endpoint"
+VITE_CHAT_API_URL="https://your-chat-api-base-url"
 ```
+
+The chat UI calls `/getAvailableModels` from that base URL to populate the
+model picker and `/askCVQuestion` to send questions.
 
 `GITHUB_TOKEN` and `GITHUB_USERNAME` are only needed for the optional snapshot refresh:
 

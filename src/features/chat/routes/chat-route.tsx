@@ -1,10 +1,11 @@
-import {useState} from "react";
+import {useCallback, useEffect, useState} from "react";
 import {FiArrowLeft, FiChevronRight, FiCpu, FiSend} from "react-icons/fi";
 import {useNavigate} from "react-router-dom";
 import {Button} from "@/components/ui/button";
 import {Modal} from "@/components/ui/modal";
-import {defaultChatModel, chatModels, quickPrompts} from "@/features/chat/config/models";
+import {quickPrompts, type ChatModel} from "@/features/chat/config/models";
 import {askQuestion} from "@/features/chat/api/ask-question";
+import {getAvailableModels} from "@/features/chat/api/get-available-models";
 
 type ChatMessage = {
   id: string;
@@ -32,16 +33,51 @@ export function ChatRoute() {
   const [inputText, setInputText] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isModelModalOpen, setIsModelModalOpen] = useState(false);
+  const [isModelsLoading, setIsModelsLoading] = useState(true);
   const [messages, setMessages] = useState<ChatMessage[]>([initialMessage]);
-  const [selectedModelId, setSelectedModelId] = useState(defaultChatModel.id);
+  const [modelsError, setModelsError] = useState<string | null>(null);
+  const [availableModels, setAvailableModels] = useState<ChatModel[]>([]);
+  const [selectedModelId, setSelectedModelId] = useState<string | null>(null);
 
   const selectedModel =
-    chatModels.find(model => model.id === selectedModelId) ?? defaultChatModel;
+    availableModels.find(model => model.id === selectedModelId) ??
+    availableModels[0] ??
+    null;
+
+  const loadModels = useCallback(async () => {
+    setIsModelsLoading(true);
+    setModelsError(null);
+
+    try {
+      const models = await getAvailableModels();
+
+      setAvailableModels(models);
+      setSelectedModelId(currentModelId =>
+        currentModelId && models.some(model => model.id === currentModelId)
+          ? currentModelId
+          : (models[0]?.id ?? null)
+      );
+    } catch (error) {
+      setAvailableModels([]);
+      setSelectedModelId(null);
+      setModelsError(
+        error instanceof Error
+          ? error.message
+          : "Failed to load available chat models."
+      );
+    } finally {
+      setIsModelsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    void loadModels();
+  }, [loadModels]);
 
   async function sendMessage(predefinedQuestion?: string) {
     const question = predefinedQuestion ?? inputText.trim();
 
-    if (!question || isLoading) {
+    if (!question || isLoading || !selectedModel) {
       return;
     }
 
@@ -60,9 +96,8 @@ export function ChatRoute() {
       const answer = await askQuestion({
         model: selectedModel.id,
         question,
-        vectorData: (
-          await import("@/features/chat/data/vector-data.json")
-        ).default.vectorData
+        vectorData: (await import("@/features/chat/data/vector-data.json"))
+          .default.vectorData
       });
 
       setMessages(currentMessages => [
@@ -111,9 +146,14 @@ export function ChatRoute() {
                 </h1>
               </div>
             </div>
-            <Button onClick={() => setIsModelModalOpen(true)} variant="secondary">
+            <Button
+              onClick={() => setIsModelModalOpen(true)}
+              variant="secondary"
+            >
               <FiCpu className="size-4" />
-              {selectedModel.name}
+              {isModelsLoading
+                ? "Loading models"
+                : (selectedModel?.name ?? "Models unavailable")}
             </Button>
           </div>
         </header>
@@ -126,7 +166,8 @@ export function ChatRoute() {
             <div className="mt-4 grid gap-3">
               {quickPrompts.map(prompt => (
                 <button
-                  className="rounded-[1.5rem] border border-slate-200/80 bg-white/70 px-4 py-4 text-left text-sm leading-6 text-slate-700 transition hover:-translate-y-0.5 hover:border-emerald-500 hover:text-slate-950 dark:border-white/10 dark:bg-white/5 dark:text-slate-200 dark:hover:border-emerald-300 dark:hover:text-white"
+                  className="rounded-[1.5rem] border border-slate-200/80 bg-white/70 px-4 py-4 text-left text-sm leading-6 text-slate-700 transition hover:-translate-y-0.5 hover:border-emerald-500 hover:text-slate-950 disabled:pointer-events-none disabled:opacity-60 dark:border-white/10 dark:bg-white/5 dark:text-slate-200 dark:hover:border-emerald-300 dark:hover:text-white"
+                  disabled={isLoading || !selectedModel}
                   key={prompt}
                   onClick={() => void sendMessage(prompt)}
                   type="button"
@@ -148,7 +189,9 @@ export function ChatRoute() {
                   }`}
                   key={message.id}
                 >
-                  <p className="whitespace-pre-wrap text-sm leading-7">{message.text}</p>
+                  <p className="whitespace-pre-wrap text-sm leading-7">
+                    {message.text}
+                  </p>
                   <p
                     className={`mt-3 text-xs uppercase tracking-[0.18em] ${
                       message.isUser
@@ -183,9 +226,14 @@ export function ChatRoute() {
                 />
                 <div className="flex flex-col gap-3 border-t border-slate-200/80 px-2 pt-3 dark:border-white/10 sm:flex-row sm:items-center sm:justify-between">
                   <p className="text-sm text-slate-500 dark:text-slate-400">
-                    Powered by the selected model and a static CV vector snapshot.
+                    {modelsError ??
+                      "Powered by the selected model and a static CV vector snapshot."}
                   </p>
-                  <Button onClick={() => void sendMessage()} variant="primary">
+                  <Button
+                    disabled={isLoading || !selectedModel}
+                    onClick={() => void sendMessage()}
+                    variant="primary"
+                  >
                     <FiSend className="size-4" />
                     Send
                   </Button>
@@ -198,30 +246,49 @@ export function ChatRoute() {
 
       {isModelModalOpen ? (
         <Modal
-          description="Pick the model identifier that should be sent to the remote CV chat service."
+          description="Pick a model returned by the remote CV chat service."
           onClose={() => setIsModelModalOpen(false)}
           title="Select a chat model"
         >
-          <div className="grid gap-3">
-            {chatModels.map(model => (
-              <button
-                className={`flex items-center justify-between rounded-[1.4rem] border px-4 py-4 text-left transition ${
-                  model.id === selectedModel.id
-                    ? "border-emerald-800 bg-emerald-900 text-white dark:border-emerald-300 dark:bg-emerald-300 dark:text-emerald-950"
-                    : "border-slate-200/80 bg-white/70 text-slate-800 hover:border-emerald-500 dark:border-white/10 dark:bg-white/5 dark:text-slate-100 dark:hover:border-emerald-300"
-                }`}
-                key={model.id}
-                onClick={() => {
-                  setSelectedModelId(model.id);
-                  setIsModelModalOpen(false);
-                }}
-                type="button"
-              >
-                <span className="font-medium">{model.name}</span>
-                <FiChevronRight className="size-4" />
-              </button>
-            ))}
-          </div>
+          {isModelsLoading ? (
+            <p className="text-sm text-slate-600 dark:text-slate-300">
+              Loading models...
+            </p>
+          ) : null}
+
+          {modelsError ? (
+            <div className="space-y-4">
+              <p className="text-sm text-slate-600 dark:text-slate-300">
+                {modelsError}
+              </p>
+              <Button onClick={() => void loadModels()} variant="secondary">
+                Retry
+              </Button>
+            </div>
+          ) : null}
+
+          {!isModelsLoading && !modelsError ? (
+            <div className="grid gap-3">
+              {availableModels.map(model => (
+                <button
+                  className={`flex items-center justify-between rounded-[1.4rem] border px-4 py-4 text-left transition ${
+                    model.id === selectedModel?.id
+                      ? "border-emerald-800 bg-emerald-900 text-white dark:border-emerald-300 dark:bg-emerald-300 dark:text-emerald-950"
+                      : "border-slate-200/80 bg-white/70 text-slate-800 hover:border-emerald-500 dark:border-white/10 dark:bg-white/5 dark:text-slate-100 dark:hover:border-emerald-300"
+                  }`}
+                  key={model.id}
+                  onClick={() => {
+                    setSelectedModelId(model.id);
+                    setIsModelModalOpen(false);
+                  }}
+                  type="button"
+                >
+                  <span className="font-medium">{model.name}</span>
+                  <FiChevronRight className="size-4" />
+                </button>
+              ))}
+            </div>
+          ) : null}
         </Modal>
       ) : null}
     </div>

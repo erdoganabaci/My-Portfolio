@@ -11,7 +11,7 @@ type ButtonProps = PropsWithChildren<{
   Omit<ButtonHTMLAttributes<HTMLButtonElement>, "className">;
 
 const baseClassName =
-  "inline-flex items-center justify-center gap-2 rounded-full border px-5 py-3 text-sm font-semibold tracking-[0.18em] uppercase transition duration-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4";
+  "inline-flex items-center justify-center gap-2 rounded-full border px-5 py-3 text-sm font-semibold tracking-[0.18em] uppercase transition duration-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 disabled:pointer-events-none disabled:opacity-60";
 
 const variantClassNames: Record<ButtonVariant, string> = {
   ghost:

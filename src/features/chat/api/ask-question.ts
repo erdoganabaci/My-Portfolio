@@ -1,8 +1,5 @@
 import {z} from "zod";
-
-const envSchema = z.object({
-  VITE_CHAT_API_URL: z.string().url()
-});
+import {getChatApiUrl} from "@/features/chat/api/chat-api-url";
 
 const responseSchema = z
   .object({
@@ -10,7 +7,8 @@ const responseSchema = z
     text: z.string().optional()
   })
   .refine(
-    response => typeof response.answer === "string" || typeof response.text === "string",
+    response =>
+      typeof response.answer === "string" || typeof response.text === "string",
     {
       message: "Chat API returned an invalid response payload."
     }
@@ -27,13 +25,7 @@ export async function askQuestion({
   question,
   vectorData
 }: AskQuestionInput) {
-  const parsedEnv = envSchema.safeParse(import.meta.env);
-
-  if (!parsedEnv.success) {
-    throw new Error("VITE_CHAT_API_URL is not configured.");
-  }
-
-  const response = await fetch(parsedEnv.data.VITE_CHAT_API_URL, {
+  const response = await fetch(getChatApiUrl("/askCVQuestion"), {
     body: JSON.stringify({
       model,
       question,

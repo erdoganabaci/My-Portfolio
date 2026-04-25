@@ -3,10 +3,7 @@ import {askQuestion} from "@/features/chat/api/ask-question";
 
 describe("askQuestion", () => {
   beforeEach(() => {
-    vi.stubEnv(
-      "VITE_CHAT_API_URL",
-      "https://example.com/functions/askCVQuestion"
-    );
+    vi.stubEnv("VITE_CHAT_API_URL", "https://example.com/functions");
   });
 
   afterEach(() => {
@@ -15,13 +12,11 @@ describe("askQuestion", () => {
   });
 
   it("sends the question payload and returns the parsed answer", async () => {
-    const fetchMock = vi
-      .spyOn(globalThis, "fetch")
-      .mockResolvedValue(
-        new Response(JSON.stringify({answer: "A parsed answer"}), {
-          status: 200
-        })
-      );
+    const fetchMock = vi.spyOn(globalThis, "fetch").mockResolvedValue(
+      new Response(JSON.stringify({answer: "A parsed answer"}), {
+        status: 200
+      })
+    );
 
     const answer = await askQuestion({
       model: "openai/gpt-4o",
@@ -39,7 +34,7 @@ describe("askQuestion", () => {
   });
 
   it("throws a helpful error when the API url is missing", async () => {
-    vi.unstubAllEnvs();
+    vi.stubEnv("VITE_CHAT_API_URL", "");
 
     await expect(
       askQuestion({
