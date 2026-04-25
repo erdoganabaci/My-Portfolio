@@ -1,5 +1,5 @@
 import {z} from "zod";
-import {getChatApiUrl} from "@/features/chat/api/chat-api-url";
+import {getAskQuestionStreamUrl} from "@/features/chat/api/chat-api-url";
 
 const responseSchema = z
   .object({
@@ -39,7 +39,7 @@ export async function askQuestion({
   question,
   vectorData
 }: AskQuestionInput) {
-  const response = await fetch(getChatApiUrl("/askCVQuestionStream"), {
+  const response = await fetch(getAskQuestionStreamUrl(), {
     body: JSON.stringify({
       model,
       question,

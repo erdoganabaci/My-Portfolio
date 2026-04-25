@@ -26,6 +26,7 @@ function createStreamResponse(events: string[]) {
 describe("askQuestion", () => {
   beforeEach(() => {
     vi.stubEnv("VITE_CHAT_API_URL", "https://example.com/functions");
+    vi.stubEnv("VITE_CHAT_ASK_STREAM_PATH", "");
   });
 
   afterEach(() => {
@@ -55,6 +56,30 @@ describe("askQuestion", () => {
     expect(onToken).toHaveBeenNthCalledWith(2, "answer");
     expect(fetchMock).toHaveBeenCalledWith(
       "https://example.com/functions/askCVQuestionStream",
+      expect.objectContaining({
+        method: "POST"
+      })
+    );
+  });
+
+  it("uses the configured stream endpoint path when provided", async () => {
+    vi.stubEnv("VITE_CHAT_ASK_STREAM_PATH", "askQuestionStream");
+    const fetchMock = vi.spyOn(globalThis, "fetch").mockResolvedValue(
+      createStreamResponse([
+        'event: done\ndata: {"answer":"A local answer"}\n\n'
+      ])
+    );
+
+    await expect(
+      askQuestion({
+        model: "openai/gpt-4o",
+        question: "What does Erdogan do?",
+        vectorData: [{pageContent: "profile"}]
+      })
+    ).resolves.toBe("A local answer");
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      "https://example.com/functions/askQuestionStream",
       expect.objectContaining({
         method: "POST"
       })

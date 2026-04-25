@@ -1,5 +1,6 @@
-import {useCallback, useEffect, useState} from "react";
+import {useCallback, useEffect, useRef, useState} from "react";
 import {FiArrowLeft, FiChevronRight, FiCpu, FiSend} from "react-icons/fi";
+import ReactMarkdown from "react-markdown";
 import {useNavigate} from "react-router-dom";
 import {Button} from "@/components/ui/button";
 import {Modal} from "@/components/ui/modal";
@@ -35,8 +36,24 @@ const initialMessage: ChatMessage = {
   timestamp: createTimestamp()
 };
 
+const autoScrollThreshold = 80;
+
+function isNearScrollBottom(element: HTMLElement) {
+  return (
+    element.scrollHeight - element.scrollTop - element.clientHeight <=
+    autoScrollThreshold
+  );
+}
+
+function scrollMessagesToBottom(element: HTMLElement) {
+  element.scrollTop = element.scrollHeight;
+}
+
 export function ChatRoute() {
   const navigate = useNavigate();
+  const messagesListRef = useRef<HTMLDivElement | null>(null);
+  const previousMessageCountRef = useRef(1);
+  const shouldAutoScrollMessagesRef = useRef(true);
   const [inputText, setInputText] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isModelModalOpen, setIsModelModalOpen] = useState(false);
@@ -87,6 +104,35 @@ export function ChatRoute() {
 
     return () => window.clearTimeout(timeoutId);
   }, [loadModels]);
+
+  useEffect(() => {
+    const messagesList = messagesListRef.current;
+
+    if (!messagesList) {
+      return;
+    }
+
+    const hasNewMessages = messages.length > previousMessageCountRef.current;
+    previousMessageCountRef.current = messages.length;
+
+    if (hasNewMessages) {
+      shouldAutoScrollMessagesRef.current = true;
+    }
+
+    if (shouldAutoScrollMessagesRef.current) {
+      scrollMessagesToBottom(messagesList);
+    }
+  }, [messages]);
+
+  const handleMessagesScroll = useCallback(() => {
+    const messagesList = messagesListRef.current;
+
+    if (!messagesList) {
+      return;
+    }
+
+    shouldAutoScrollMessagesRef.current = isNearScrollBottom(messagesList);
+  }, []);
 
   async function sendMessage(predefinedQuestion?: string) {
     const question = predefinedQuestion ?? inputText.trim();
@@ -161,9 +207,9 @@ export function ChatRoute() {
   }
 
   return (
-    <div className="min-h-screen px-4 py-6 sm:px-6 lg:px-8">
-      <div className="mx-auto flex min-h-[calc(100vh-3rem)] max-w-6xl flex-col overflow-hidden rounded-[2rem] border border-white/40 bg-[var(--surface)] shadow-[0_30px_90px_-50px_var(--shadow)] backdrop-blur-xl">
-        <header className="border-b border-slate-200/80 px-5 py-4 dark:border-white/10">
+    <div className="h-dvh overflow-hidden px-4 py-6 sm:px-6 lg:px-8">
+      <div className="mx-auto flex h-[calc(100dvh-3rem)] max-w-6xl flex-col overflow-hidden rounded-[2rem] border border-white/40 bg-[var(--surface)] shadow-[0_30px_90px_-50px_var(--shadow)] backdrop-blur-xl">
+        <header className="shrink-0 border-b border-slate-200/80 px-5 py-4 dark:border-white/10">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             <div className="flex flex-wrap items-center gap-3">
               <Button onClick={() => void navigate("/")} variant="ghost">
@@ -191,15 +237,15 @@ export function ChatRoute() {
           </div>
         </header>
 
-        <div className="flex flex-1 flex-col lg:flex-row">
-          <aside className="border-b border-slate-200/80 px-5 py-5 dark:border-white/10 lg:w-80 lg:border-b-0 lg:border-r">
+        <div className="flex min-h-0 flex-1 flex-col lg:flex-row">
+          <aside className="min-h-0 shrink-0 border-b border-slate-200/80 px-5 py-4 dark:border-white/10 lg:w-80 lg:overflow-y-auto lg:border-b-0 lg:border-r lg:py-5">
             <h2 className="text-sm font-semibold uppercase tracking-[0.22em] text-slate-800 dark:text-slate-100">
               Quick prompts
             </h2>
-            <div className="mt-4 grid gap-3">
+            <div className="-mx-1 mt-4 flex gap-3 overflow-x-auto px-1 pb-1 lg:mx-0 lg:grid lg:overflow-visible lg:px-0 lg:pb-0">
               {quickPrompts.map(prompt => (
                 <button
-                  className="rounded-[1.5rem] border border-slate-200/80 bg-white/70 px-4 py-4 text-left text-sm leading-6 text-slate-700 transition hover:-translate-y-0.5 hover:border-emerald-500 hover:text-slate-950 disabled:pointer-events-none disabled:opacity-60 dark:border-white/10 dark:bg-white/5 dark:text-slate-200 dark:hover:border-emerald-300 dark:hover:text-white"
+                  className="min-w-64 rounded-[1.5rem] border border-slate-200/80 bg-white/70 px-4 py-4 text-left text-sm leading-6 text-slate-700 transition hover:-translate-y-0.5 hover:border-emerald-500 hover:text-slate-950 disabled:pointer-events-none disabled:opacity-60 dark:border-white/10 dark:bg-white/5 dark:text-slate-200 dark:hover:border-emerald-300 dark:hover:text-white lg:min-w-0"
                   disabled={isLoading || !selectedModel}
                   key={prompt}
                   onClick={() => void sendMessage(prompt)}
@@ -211,8 +257,13 @@ export function ChatRoute() {
             </div>
           </aside>
 
-          <div className="flex flex-1 flex-col">
-            <div className="flex-1 space-y-5 overflow-y-auto px-5 py-5">
+          <div className="flex min-h-0 flex-1 flex-col">
+            <div
+              aria-label="Chat messages"
+              className="min-h-0 flex-1 space-y-5 overflow-y-auto px-5 py-5"
+              onScroll={handleMessagesScroll}
+              ref={messagesListRef}
+            >
               {messages.map(message => {
                 const text =
                   message.text ||
@@ -227,9 +278,13 @@ export function ChatRoute() {
                     }`}
                     key={message.id}
                   >
-                    <p className="whitespace-pre-wrap text-sm leading-7">
-                      {text}
-                    </p>
+                    {message.isUser ? (
+                      <p className="whitespace-pre-wrap text-sm leading-7">
+                        {text}
+                      </p>
+                    ) : (
+                      <AssistantMarkdown text={text} />
+                    )}
                     <p
                       className={`mt-3 text-xs uppercase tracking-[0.18em] ${
                         message.isUser
@@ -244,7 +299,7 @@ export function ChatRoute() {
               })}
             </div>
 
-            <div className="border-t border-slate-200/80 px-5 py-5 dark:border-white/10">
+            <div className="shrink-0 border-t border-slate-200/80 px-5 py-5 dark:border-white/10">
               <div className="rounded-[1.8rem] border border-slate-200/80 bg-white/70 p-3 shadow-[0_18px_45px_-32px_var(--shadow)] dark:border-white/10 dark:bg-white/5">
                 <textarea
                   className="min-h-28 w-full resize-none border-none bg-transparent px-3 py-3 text-base leading-7 text-slate-800 outline-none placeholder:text-slate-400 dark:text-slate-100 dark:placeholder:text-slate-500"
@@ -326,5 +381,47 @@ export function ChatRoute() {
         </Modal>
       ) : null}
     </div>
+  );
+}
+
+function AssistantMarkdown({text}: {text: string}) {
+  return (
+    <ReactMarkdown
+      components={{
+        a: ({children, href}) => (
+          <a
+            className="font-medium text-emerald-800 underline underline-offset-4 hover:text-emerald-700 dark:text-emerald-300 dark:hover:text-emerald-200"
+            href={href}
+            rel="noreferrer"
+            target="_blank"
+          >
+            {children}
+          </a>
+        ),
+        li: ({children}) => <li className="pl-1">{children}</li>,
+        ol: ({children}) => (
+          <ol className="mb-3 list-decimal space-y-1 pl-5 text-sm leading-7 last:mb-0">
+            {children}
+          </ol>
+        ),
+        p: ({children}) => (
+          <p className="mb-3 whitespace-pre-wrap text-sm leading-7 last:mb-0">
+            {children}
+          </p>
+        ),
+        strong: ({children}) => (
+          <strong className="font-semibold text-slate-950 dark:text-white">
+            {children}
+          </strong>
+        ),
+        ul: ({children}) => (
+          <ul className="mb-3 list-disc space-y-1 pl-5 text-sm leading-7 last:mb-0">
+            {children}
+          </ul>
+        )
+      }}
+    >
+      {text}
+    </ReactMarkdown>
   );
 }

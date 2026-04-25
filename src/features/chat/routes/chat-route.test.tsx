@@ -1,4 +1,4 @@
-import {screen, waitFor} from "@testing-library/react";
+import {act, fireEvent, screen, waitFor} from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import {afterEach, beforeEach, describe, expect, it, vi} from "vitest";
 import {ChatRoute} from "@/features/chat/routes/chat-route";
@@ -40,6 +40,54 @@ function createStreamResponse(events: string[]) {
       status: 200
     }
   );
+}
+
+function createControlledStreamResponse() {
+  let controller: ReadableStreamDefaultController<Uint8Array> | null = null;
+  const encoder = new TextEncoder();
+
+  return {
+    close() {
+      controller?.close();
+    },
+    enqueue(event: string) {
+      controller?.enqueue(encoder.encode(event));
+    },
+    response: new Response(
+      new ReadableStream({
+        start(nextController) {
+          controller = nextController;
+        }
+      }),
+      {
+        headers: {
+          "Content-Type": "text/event-stream"
+        },
+        status: 200
+      }
+    )
+  };
+}
+
+function setScrollMetrics(
+  element: HTMLElement,
+  metrics: {clientHeight: number; scrollHeight: number; scrollTop: number}
+) {
+  Object.defineProperties(element, {
+    clientHeight: {
+      configurable: true,
+      value: metrics.clientHeight
+    },
+    scrollHeight: {
+      configurable: true,
+      value: metrics.scrollHeight
+    },
+    scrollTop: {
+      configurable: true,
+      value: metrics.scrollTop,
+      writable: true
+    }
+  });
 }
 
 describe("ChatRoute", () => {
@@ -100,6 +148,70 @@ describe("ChatRoute", () => {
       expect(
         screen.getByText("Erdogan works across frontend and backend.")
       ).toBeInTheDocument();
+    });
+  });
+
+  it("does not force the message list to the bottom while the user is reading earlier messages", async () => {
+    const user = userEvent.setup();
+    const stream = createControlledStreamResponse();
+
+    vi.spyOn(globalThis, "fetch").mockImplementation(input => {
+      if (getFetchUrl(input).endsWith("/getAvailableModels")) {
+        return Promise.resolve(
+          new Response(JSON.stringify(modelPayload), {status: 200})
+        );
+      }
+
+      return Promise.resolve(stream.response);
+    });
+
+    renderWithProviders(<ChatRoute />, {route: "/chat"});
+
+    await screen.findByRole("button", {name: /gpt-4o/i});
+
+    const messagesList = screen.getByLabelText("Chat messages");
+    setScrollMetrics(messagesList, {
+      clientHeight: 400,
+      scrollHeight: 1000,
+      scrollTop: 600
+    });
+
+    await user.type(
+      screen.getByPlaceholderText(
+        "Ask about Erdogan's experience, education, skills, or projects..."
+      ),
+      "What does Erdogan do?"
+    );
+    await user.click(screen.getByRole("button", {name: /send/i}));
+
+    await screen.findByText("Thinking...");
+    await waitFor(() => expect(messagesList.scrollTop).toBe(1000));
+
+    messagesList.scrollTop = 100;
+    fireEvent.scroll(messagesList);
+
+    act(() => {
+      stream.enqueue('event: token\ndata: {"token":"Partial"}\n\n');
+    });
+
+    await screen.findByText("Partial");
+    await waitFor(() => expect(messagesList.scrollTop).toBe(100));
+
+    messagesList.scrollTop = 600;
+    fireEvent.scroll(messagesList);
+
+    act(() => {
+      stream.enqueue('event: token\ndata: {"token":" answer"}\n\n');
+    });
+
+    await screen.findByText("Partial answer");
+    await waitFor(() => expect(messagesList.scrollTop).toBe(1000));
+
+    act(() => {
+      stream.enqueue(
+        'event: done\ndata: {"answer":"Partial answer"}\n\n'
+      );
+      stream.close();
     });
   });
 
