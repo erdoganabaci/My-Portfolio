@@ -29,7 +29,7 @@ function addCompletedTurn(store: AppStore, question: string, answer: string) {
 }
 
 describe("chatSlice", () => {
-  it("keeps the last 10 completed user and assistant turns for request context", () => {
+  it("compresses older turns and keeps the last 10 completed turns for request context", () => {
     const store = createAppStore();
 
     for (let index = 1; index <= 12; index += 1) {
@@ -38,9 +38,14 @@ describe("chatSlice", () => {
 
     const history = selectConversationHistory(store.getState());
 
-    expect(history).toHaveLength(20);
-    expect(history[0]).toEqual({role: "user", content: "Question 3"});
-    expect(history[1]).toEqual({role: "assistant", content: "Answer 3"});
+    expect(history).toHaveLength(21);
+    expect(history[0]?.role).toBe("assistant");
+    expect(history[0]?.content).toContain(
+      "First user question in this session: Question 1"
+    );
+    expect(history[0]?.content).toContain("Turns 1-2:");
+    expect(history[1]).toEqual({role: "user", content: "Question 3"});
+    expect(history[2]).toEqual({role: "assistant", content: "Answer 3"});
     expect(history.at(-2)).toEqual({role: "user", content: "Question 12"});
     expect(history.at(-1)).toEqual({role: "assistant", content: "Answer 12"});
   });

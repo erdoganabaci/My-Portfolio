@@ -7,6 +7,9 @@ import type {
 } from "@/features/chat/types";
 
 const conversationHistoryTurnLimit = 10;
+const compressedBlockTurnLimit = 10;
+const compressedQuestionMaxLength = 120;
+const compressedAnswerMaxLength = 180;
 
 type ChatState = {
   availableModels: ChatModel[];
@@ -161,19 +164,25 @@ export function selectChatMessages(state: ChatRootState) {
 
 export const selectConversationHistory = createSelector(
   [selectChatMessages, selectStreamingMessageId],
-  (messages, streamingMessageId): ConversationHistoryMessage[] =>
-    getCompletedTurns(messages, streamingMessageId)
-    .slice(-conversationHistoryTurnLimit)
-    .flatMap(({assistantMessage, userMessage}) => [
-      {
-        role: "user" as const,
-        content: userMessage.text
-      },
-      {
-        role: "assistant" as const,
-        content: assistantMessage.text
-      }
-    ])
+  (messages, streamingMessageId): ConversationHistoryMessage[] => {
+    const completedTurns = getCompletedTurns(messages, streamingMessageId);
+    const olderTurns = completedTurns.slice(0, -conversationHistoryTurnLimit);
+    const recentTurns = completedTurns.slice(-conversationHistoryTurnLimit);
+
+    return [
+      ...createCompressedHistoryMessages(olderTurns),
+      ...recentTurns.flatMap(({assistantMessage, userMessage}) => [
+        {
+          role: "user" as const,
+          content: userMessage.text
+        },
+        {
+          role: "assistant" as const,
+          content: assistantMessage.text
+        }
+      ])
+    ];
+  }
 );
 
 export function selectIsLoading(state: ChatRootState) {
@@ -231,6 +240,67 @@ function getCompletedTurns(
   });
 
   return turns;
+}
+
+function createCompressedHistoryMessages(
+  turns: Array<{assistantMessage: ChatMessage; userMessage: ChatMessage}>
+): ConversationHistoryMessage[] {
+  if (turns.length === 0) {
+    return [];
+  }
+
+  const firstQuestion = turns[0]?.userMessage.text.trim() ?? "";
+  const blocks = createCompressedBlocks(turns);
+  const content = [
+    "Compressed memory of earlier completed chat turns before the latest 10 full turns.",
+    "Use this only for chat-history questions and follow-up references; it is not document evidence.",
+    `First user question in this session: ${firstQuestion}`,
+    ...blocks
+  ].join("\n");
+
+  return [
+    {
+      role: "assistant",
+      content
+    }
+  ];
+}
+
+function createCompressedBlocks(
+  turns: Array<{assistantMessage: ChatMessage; userMessage: ChatMessage}>
+) {
+  const blocks: string[] = [];
+
+  for (let index = 0; index < turns.length; index += compressedBlockTurnLimit) {
+    const block = turns.slice(index, index + compressedBlockTurnLimit);
+    const firstTurn = block[0];
+    const lastTurn = block.at(-1);
+
+    if (!firstTurn || !lastTurn) {
+      continue;
+    }
+
+    blocks.push(
+      [
+        `Turns ${index + 1}-${index + block.length}:`,
+        `first question: ${truncateForMemory(firstTurn.userMessage.text, compressedQuestionMaxLength)}`,
+        `last question: ${truncateForMemory(lastTurn.userMessage.text, compressedQuestionMaxLength)}`,
+        `last answer: ${truncateForMemory(lastTurn.assistantMessage.text, compressedAnswerMaxLength)}`
+      ].join(" ")
+    );
+  }
+
+  return blocks;
+}
+
+function truncateForMemory(text: string, maxLength: number) {
+  const normalizedText = text.trim().replace(/\s+/g, " ");
+
+  if (normalizedText.length <= maxLength) {
+    return normalizedText;
+  }
+
+  return `${normalizedText.slice(0, maxLength - 3)}...`;
 }
 
 function getSelectedModelId(
