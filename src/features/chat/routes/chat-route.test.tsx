@@ -108,6 +108,31 @@ describe("ChatRoute", () => {
     vi.restoreAllMocks();
   });
 
+  it("shows why chat controls are disabled while models load", () => {
+    vi.spyOn(globalThis, "fetch").mockImplementation(input => {
+      if (getFetchUrl(input).endsWith("/getAvailableModels")) {
+        return new Promise<Response>(() => {});
+      }
+
+      return Promise.resolve(new Response(null, {status: 500}));
+    });
+
+    renderWithProviders(<ChatRoute />, {route: "/chat"});
+
+    expect(screen.getByText("Loading chat models")).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        "Loading chat models. Sending unlocks when a model is ready."
+      )
+    ).toBeInTheDocument();
+    expect(screen.getByRole("button", {name: /send/i})).toBeDisabled();
+    expect(
+      screen.getByRole("button", {
+        name: /summarize erdogan's education/i
+      })
+    ).toBeDisabled();
+  });
+
   it("shows loading state and appends the assistant response", async () => {
     const user = userEvent.setup();
     let resolveResponse: ((value: Response) => void) | null = null;

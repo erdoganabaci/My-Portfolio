@@ -10,6 +10,7 @@ import {
   FiCode,
   FiCpu,
   FiHelpCircle,
+  FiLoader,
   FiSend,
   FiShield,
   FiStar,
@@ -104,6 +105,12 @@ export function ChatRoute() {
   const modelsError = useAppSelector(selectModelsError);
   const selectedModel = useAppSelector(selectSelectedModel);
   const streamingMessageId = useAppSelector(selectStreamingMessageId);
+  const isChatWaitingForModel = isModelsLoading || !selectedModel;
+  const readyComposerStatusText =
+    "Profile context is active. Answers use Erdogan's static CV vector snapshot.";
+  const composerStatusText = isModelsLoading
+    ? "Loading chat models. Sending unlocks when a model is ready."
+    : (modelsError ?? readyComposerStatusText);
 
   const updatePromptScrollState = useCallback(() => {
     const promptList = promptListRef.current;
@@ -292,11 +299,16 @@ export function ChatRoute() {
 
             <div className="flex shrink-0 items-center gap-2 sm:gap-3">
               <button
+                aria-busy={isModelsLoading}
                 className="inline-flex min-h-11 items-center gap-2 rounded-full border border-slate-200/80 bg-white/80 px-3 text-sm font-semibold text-slate-900 shadow-[0_16px_44px_-34px_rgba(15,23,42,0.6)] transition hover:-translate-y-0.5 hover:border-cyan-500/60 hover:text-slate-950 dark:border-white/10 dark:bg-white/5 dark:text-white dark:hover:border-cyan-300/60 dark:hover:bg-white/10 sm:px-5"
                 onClick={() => setIsModelModalOpen(true)}
                 type="button"
               >
-                <FiZap className="size-4 shrink-0 text-cyan-600 dark:text-cyan-300" />
+                {isModelsLoading ? (
+                  <FiLoader className="size-4 shrink-0 animate-spin text-cyan-600 dark:text-cyan-300" />
+                ) : (
+                  <FiZap className="size-4 shrink-0 text-cyan-600 dark:text-cyan-300" />
+                )}
                 <span className="max-w-[8.5rem] truncate sm:max-w-[13rem]">
                   {isModelsLoading
                     ? "Loading models"
@@ -395,7 +407,7 @@ export function ChatRoute() {
 
                           {followUpSuggestions.length > 0 ? (
                             <FollowUpSuggestions
-                              disabled={isLoading || !selectedModel}
+                              disabled={isLoading || isChatWaitingForModel}
                               onSelect={suggestion =>
                                 void sendMessage(suggestion)
                               }
@@ -418,6 +430,15 @@ export function ChatRoute() {
 
             <div className="shrink-0 border-t border-slate-200/70 bg-white/60 px-4 py-4 backdrop-blur-xl dark:border-white/10 dark:bg-slate-950/[0.45] sm:px-8 lg:px-12">
               <div className="mx-auto max-w-5xl">
+                {isModelsLoading ? (
+                  <div
+                    className="mb-3 inline-flex items-center gap-2 rounded-full border border-cyan-500/25 bg-cyan-500/10 px-3 py-2 text-sm font-semibold text-cyan-700 dark:border-cyan-300/25 dark:bg-cyan-300/10 dark:text-cyan-200"
+                  >
+                    <FiLoader className="size-4 animate-spin" />
+                    Loading chat models
+                  </div>
+                ) : null}
+
                 <div className="mb-3 flex items-center gap-2">
                   <button
                     aria-label="Show previous quick prompts"
@@ -438,7 +459,7 @@ export function ChatRoute() {
                     {quickPrompts.map((prompt, index) => (
                       <button
                         className="inline-flex min-h-12 shrink-0 snap-start items-center gap-3 rounded-full border border-slate-200/80 bg-white/80 px-4 py-2 text-left text-sm font-medium text-slate-700 shadow-[0_16px_44px_-38px_rgba(15,23,42,0.7)] transition hover:-translate-y-0.5 hover:border-cyan-500/50 hover:text-slate-950 disabled:pointer-events-none disabled:opacity-60 dark:border-white/10 dark:bg-white/5 dark:text-slate-200 dark:hover:border-cyan-300/50 dark:hover:bg-white/10 dark:hover:text-white"
-                        disabled={isLoading || !selectedModel}
+                        disabled={isLoading || isChatWaitingForModel}
                         key={prompt}
                         onClick={() => void sendMessage(prompt)}
                         type="button"
@@ -474,13 +495,19 @@ export function ChatRoute() {
                     value={inputText}
                   />
                   <div className="flex flex-col gap-3 border-t border-slate-200/80 px-2 pt-3 dark:border-white/10 sm:flex-row sm:items-center sm:justify-between">
-                    <p className="text-sm leading-6 text-slate-500 dark:text-slate-400">
-                      {modelsError ??
-                        "Profile context is active. Answers use Erdogan's static CV vector snapshot."}
-                    </p>
+                    <div
+                      aria-live={isModelsLoading ? "polite" : undefined}
+                      className="flex min-w-0 items-start gap-2 text-sm leading-6 text-slate-500 dark:text-slate-400"
+                      role={isModelsLoading ? "status" : undefined}
+                    >
+                      {isModelsLoading ? (
+                        <FiLoader className="mt-1 size-4 shrink-0 animate-spin text-cyan-600 dark:text-cyan-300" />
+                      ) : null}
+                      <p>{composerStatusText}</p>
+                    </div>
                     <Button
                       className="min-w-32 rounded-[1rem] border-cyan-500 bg-cyan-500 px-5 py-3 text-base normal-case tracking-normal text-white shadow-[0_18px_46px_-26px_rgba(6,182,212,0.95)] hover:bg-cyan-400 dark:border-cyan-300 dark:bg-cyan-400 dark:text-slate-950 dark:hover:bg-cyan-300"
-                      disabled={isLoading || !selectedModel}
+                      disabled={isLoading || isChatWaitingForModel}
                       onClick={() => void sendMessage()}
                       variant="primary"
                     >
