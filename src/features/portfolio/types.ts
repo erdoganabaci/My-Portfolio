@@ -88,6 +88,7 @@ export type ExperienceEntry = {
   location?: string;
   role: string;
   techStack?: string[];
+  websiteUrl?: string;
 };
 
 export type ExperienceContent = {

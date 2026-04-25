@@ -15,6 +15,7 @@ export const experienceContent: ExperienceContent = {
         "Founded an AI image generation platform for prompt-based image creation, background removal, headshots, and photo restoration.",
       location: "Brussels, Belgium",
       role: "Founder",
+      websiteUrl: "https://monagenie.com/",
       techStack: [
         "Cloud Functions",
         "Node.js",
@@ -33,6 +34,7 @@ export const experienceContent: ExperienceContent = {
         "Founded an AI PDF assistant for multi-PDF chat, smart document grouping, and AI-powered document Q&A.",
       location: "Brussels, Belgium",
       role: "Founder",
+      websiteUrl: "https://auroragenie.com/",
       techStack: [
         "Cloud Functions",
         "Node.js",

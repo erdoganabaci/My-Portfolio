@@ -1,3 +1,4 @@
+import {HiOutlineArrowUpRight} from "react-icons/hi2";
 import {SectionHeading} from "@/components/ui/section-heading";
 import {SectionShell} from "@/components/ui/section-shell";
 import {experienceContent} from "@/features/portfolio/content";
@@ -13,6 +14,14 @@ function getCompanyInitials(company: string) {
     .slice(0, 2)
     .map(part => part[0]?.toUpperCase() ?? "")
     .join("");
+}
+
+function getWebsiteLabel(websiteUrl: string) {
+  try {
+    return new URL(websiteUrl).hostname.replace(/^www\./, "");
+  } catch {
+    return websiteUrl;
+  }
 }
 
 export function ExperienceSection() {
@@ -75,6 +84,17 @@ export function ExperienceSection() {
                     <li key={bullet}>{bullet}</li>
                   ))}
                 </ul>
+              ) : null}
+              {item.websiteUrl ? (
+                <a
+                  className="mt-4 inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm font-semibold text-emerald-900 transition hover:-translate-y-0.5 hover:border-emerald-500 dark:border-emerald-400/20 dark:bg-emerald-400/10 dark:text-emerald-200"
+                  href={item.websiteUrl}
+                  rel="noreferrer"
+                  target="_blank"
+                >
+                  {getWebsiteLabel(item.websiteUrl)}
+                  <HiOutlineArrowUpRight className="size-4" />
+                </a>
               ) : null}
               {item.techStack?.length ? (
                 <div className="mt-5 flex flex-wrap gap-2">

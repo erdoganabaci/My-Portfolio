@@ -19,5 +19,13 @@ describe("HomeRoute", () => {
     expect(
       screen.getByRole("heading", {name: "Selected repositories"})
     ).toBeInTheDocument();
+
+    const monaGenLink = screen.getByRole("link", {name: /monagenie\.com/i});
+    expect(monaGenLink).toHaveAttribute("href", "https://monagenie.com/");
+    expect(monaGenLink).toHaveAttribute("target", "_blank");
+
+    const auroraLink = screen.getByRole("link", {name: /auroragenie\.com/i});
+    expect(auroraLink).toHaveAttribute("href", "https://auroragenie.com/");
+    expect(auroraLink).toHaveAttribute("target", "_blank");
   });
 });
