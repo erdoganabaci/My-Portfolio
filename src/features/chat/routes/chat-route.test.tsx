@@ -20,6 +20,28 @@ function getFetchUrl(input: RequestInfo | URL) {
   return input.url;
 }
 
+function createStreamResponse(events: string[]) {
+  return new Response(
+    new ReadableStream({
+      start(controller) {
+        const encoder = new TextEncoder();
+
+        for (const event of events) {
+          controller.enqueue(encoder.encode(event));
+        }
+
+        controller.close();
+      }
+    }),
+    {
+      headers: {
+        "Content-Type": "text/event-stream"
+      },
+      status: 200
+    }
+  );
+}
+
 describe("ChatRoute", () => {
   beforeEach(() => {
     vi.stubEnv("VITE_CHAT_API_URL", "https://example.com/functions");
@@ -67,12 +89,11 @@ describe("ChatRoute", () => {
     });
 
     resolveResponse?.(
-      new Response(
-        JSON.stringify({answer: "Erdogan works across frontend and backend."}),
-        {
-          status: 200
-        }
-      )
+      createStreamResponse([
+        'event: token\ndata: {"token":"Erdogan works across "}\n\n',
+        'event: token\ndata: {"token":"frontend and backend."}\n\n',
+        'event: done\ndata: {"answer":"Erdogan works across frontend and backend."}\n\n'
+      ])
     );
 
     await waitFor(() => {

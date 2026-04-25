@@ -1,6 +1,28 @@
 import {afterEach, beforeEach, describe, expect, it, vi} from "vitest";
 import {askQuestion} from "@/features/chat/api/ask-question";
 
+function createStreamResponse(events: string[]) {
+  return new Response(
+    new ReadableStream({
+      start(controller) {
+        const encoder = new TextEncoder();
+
+        for (const event of events) {
+          controller.enqueue(encoder.encode(event));
+        }
+
+        controller.close();
+      }
+    }),
+    {
+      headers: {
+        "Content-Type": "text/event-stream"
+      },
+      status: 200
+    }
+  );
+}
+
 describe("askQuestion", () => {
   beforeEach(() => {
     vi.stubEnv("VITE_CHAT_API_URL", "https://example.com/functions");
@@ -12,21 +34,27 @@ describe("askQuestion", () => {
   });
 
   it("sends the question payload and returns the parsed answer", async () => {
+    const onToken = vi.fn();
     const fetchMock = vi.spyOn(globalThis, "fetch").mockResolvedValue(
-      new Response(JSON.stringify({answer: "A parsed answer"}), {
-        status: 200
-      })
+      createStreamResponse([
+        'event: token\ndata: {"token":"A parsed "}\n\n',
+        'event: token\ndata: {"token":"answer"}\n\n',
+        'event: done\ndata: {"answer":"A parsed answer"}\n\n'
+      ])
     );
 
     const answer = await askQuestion({
       model: "openai/gpt-4o",
+      onToken,
       question: "What does Erdogan do?",
       vectorData: [{pageContent: "profile"}]
     });
 
     expect(answer).toBe("A parsed answer");
+    expect(onToken).toHaveBeenNthCalledWith(1, "A parsed ");
+    expect(onToken).toHaveBeenNthCalledWith(2, "answer");
     expect(fetchMock).toHaveBeenCalledWith(
-      "https://example.com/functions/askCVQuestion",
+      "https://example.com/functions/askCVQuestionStream",
       expect.objectContaining({
         method: "POST"
       })

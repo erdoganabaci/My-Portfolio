@@ -21,6 +21,13 @@ function createTimestamp() {
   });
 }
 
+let messageIdCounter = 0;
+
+function createMessageId(prefix: string) {
+  messageIdCounter += 1;
+  return `${prefix}-${messageIdCounter}`;
+}
+
 const initialMessage: ChatMessage = {
   id: "welcome-message",
   isUser: false,
@@ -38,6 +45,9 @@ export function ChatRoute() {
   const [modelsError, setModelsError] = useState<string | null>(null);
   const [availableModels, setAvailableModels] = useState<ChatModel[]>([]);
   const [selectedModelId, setSelectedModelId] = useState<string | null>(null);
+  const [streamingMessageId, setStreamingMessageId] = useState<string | null>(
+    null
+  );
 
   const selectedModel =
     availableModels.find(model => model.id === selectedModelId) ??
@@ -71,7 +81,11 @@ export function ChatRoute() {
   }, []);
 
   useEffect(() => {
-    void loadModels();
+    const timeoutId = window.setTimeout(() => {
+      void loadModels();
+    }, 0);
+
+    return () => window.clearTimeout(timeoutId);
   }, [loadModels]);
 
   async function sendMessage(predefinedQuestion?: string) {
@@ -82,47 +96,66 @@ export function ChatRoute() {
     }
 
     const userMessage: ChatMessage = {
-      id: `user-${Date.now()}`,
+      id: createMessageId("user"),
       isUser: true,
       text: question,
+      timestamp: createTimestamp()
+    };
+    const assistantMessage: ChatMessage = {
+      id: createMessageId("assistant"),
+      isUser: false,
+      text: "",
       timestamp: createTimestamp()
     };
 
     setInputText("");
     setIsLoading(true);
-    setMessages(currentMessages => [...currentMessages, userMessage]);
+    setStreamingMessageId(assistantMessage.id);
+    setMessages(currentMessages => [
+      ...currentMessages,
+      userMessage,
+      assistantMessage
+    ]);
 
     try {
       const answer = await askQuestion({
         model: selectedModel.id,
+        onToken: token => {
+          setMessages(currentMessages =>
+            currentMessages.map(message =>
+              message.id === assistantMessage.id
+                ? {...message, text: `${message.text}${token}`}
+                : message
+            )
+          );
+        },
         question,
         vectorData: (await import("@/features/chat/data/vector-data.json"))
           .default.vectorData
       });
 
-      setMessages(currentMessages => [
-        ...currentMessages,
-        {
-          id: `assistant-${Date.now()}`,
-          isUser: false,
-          text: answer,
-          timestamp: createTimestamp()
-        }
-      ]);
+      setMessages(currentMessages =>
+        currentMessages.map(message =>
+          message.id === assistantMessage.id
+            ? {...message, text: answer || message.text}
+            : message
+        )
+      );
     } catch (error) {
-      setMessages(currentMessages => [
-        ...currentMessages,
-        {
-          id: `assistant-error-${Date.now()}`,
-          isUser: false,
-          text:
-            error instanceof Error
-              ? error.message
-              : "Sorry, there was an error processing your request.",
-          timestamp: createTimestamp()
-        }
-      ]);
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : "Sorry, there was an error processing your request.";
+
+      setMessages(currentMessages =>
+        currentMessages.map(message =>
+          message.id === assistantMessage.id
+            ? {...message, text: errorMessage}
+            : message
+        )
+      );
     } finally {
+      setStreamingMessageId(null);
       setIsLoading(false);
     }
   }
@@ -180,34 +213,35 @@ export function ChatRoute() {
 
           <div className="flex flex-1 flex-col">
             <div className="flex-1 space-y-5 overflow-y-auto px-5 py-5">
-              {messages.map(message => (
-                <article
-                  className={`max-w-3xl rounded-[1.6rem] border px-5 py-4 shadow-[0_18px_45px_-32px_var(--shadow)] ${
-                    message.isUser
-                      ? "ml-auto border-emerald-900 bg-emerald-900 text-white dark:border-emerald-300 dark:bg-emerald-300 dark:text-emerald-950"
-                      : "border-slate-200/80 bg-white/70 text-slate-800 dark:border-white/10 dark:bg-white/5 dark:text-slate-100"
-                  }`}
-                  key={message.id}
-                >
-                  <p className="whitespace-pre-wrap text-sm leading-7">
-                    {message.text}
-                  </p>
-                  <p
-                    className={`mt-3 text-xs uppercase tracking-[0.18em] ${
+              {messages.map(message => {
+                const text =
+                  message.text ||
+                  (message.id === streamingMessageId ? "Thinking..." : "");
+
+                return (
+                  <article
+                    className={`max-w-3xl rounded-[1.6rem] border px-5 py-4 shadow-[0_18px_45px_-32px_var(--shadow)] ${
                       message.isUser
-                        ? "text-white/70 dark:text-emerald-950/70"
-                        : "text-slate-500 dark:text-slate-400"
+                        ? "ml-auto border-emerald-900 bg-emerald-900 text-white dark:border-emerald-300 dark:bg-emerald-300 dark:text-emerald-950"
+                        : "border-slate-200/80 bg-white/70 text-slate-800 dark:border-white/10 dark:bg-white/5 dark:text-slate-100"
                     }`}
+                    key={message.id}
                   >
-                    {message.timestamp}
-                  </p>
-                </article>
-              ))}
-              {isLoading ? (
-                <div className="max-w-sm rounded-[1.6rem] border border-slate-200/80 bg-white/70 px-5 py-4 text-sm text-slate-600 shadow-[0_18px_45px_-32px_var(--shadow)] dark:border-white/10 dark:bg-white/5 dark:text-slate-300">
-                  Thinking...
-                </div>
-              ) : null}
+                    <p className="whitespace-pre-wrap text-sm leading-7">
+                      {text}
+                    </p>
+                    <p
+                      className={`mt-3 text-xs uppercase tracking-[0.18em] ${
+                        message.isUser
+                          ? "text-white/70 dark:text-emerald-950/70"
+                          : "text-slate-500 dark:text-slate-400"
+                      }`}
+                    >
+                      {message.timestamp}
+                    </p>
+                  </article>
+                );
+              })}
             </div>
 
             <div className="border-t border-slate-200/80 px-5 py-5 dark:border-white/10">
