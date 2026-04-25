@@ -9,6 +9,7 @@ import {
   FiChevronRight,
   FiCode,
   FiCpu,
+  FiHelpCircle,
   FiSend,
   FiShield,
   FiStar,
@@ -233,7 +234,7 @@ export function ChatRoute() {
     }));
 
     try {
-      const answer = await askQuestion({
+      const result = await askQuestion({
         conversationHistory,
         model: selectedModel.id,
         onToken: token => {
@@ -248,7 +249,8 @@ export function ChatRoute() {
       });
 
       dispatch(assistantMessageCompleted({
-        answer,
+        answer: result.answer,
+        followUpSuggestions: result.followUpSuggestions,
         messageId: assistantMessage.id
       }));
     } catch (error) {
@@ -340,6 +342,10 @@ export function ChatRoute() {
                     const text =
                       message.text ||
                       (message.id === streamingMessageId ? "Thinking..." : "");
+                    const followUpSuggestions =
+                      !message.isUser && message.status === "completed"
+                        ? (message.followUpSuggestions ?? [])
+                        : [];
 
                     return (
                       <div
@@ -354,33 +360,49 @@ export function ChatRoute() {
                           </span>
                         ) : null}
 
-                        <article
-                          className={`min-w-0 max-w-[calc(100%-1rem)] rounded-[1.4rem] border px-5 py-4 shadow-[0_18px_55px_-38px_rgba(15,23,42,0.85)] sm:max-w-[78%] ${
-                            message.isUser
-                              ? "rounded-br-md border-cyan-500/60 bg-[linear-gradient(135deg,#047857,#0e7490)] text-white dark:border-cyan-300/40 dark:bg-[linear-gradient(135deg,rgba(20,184,166,0.6),rgba(6,182,212,0.42))]"
-                              : "rounded-bl-md border-slate-200/80 bg-white/80 text-slate-800 dark:border-white/10 dark:bg-white/[0.07] dark:text-slate-100"
-                          }`}
+                        <div
+                          className={`flex min-w-0 max-w-[calc(100%-1rem)] flex-col ${
+                            message.isUser ? "items-end" : "items-start"
+                          } sm:max-w-[78%]`}
                         >
-                          {message.isUser ? (
-                            <p className="whitespace-pre-wrap text-sm leading-7">
-                              {text}
-                            </p>
-                          ) : (
-                            <AssistantMarkdown text={text} />
-                          )}
-                          <p
-                            className={`mt-3 flex items-center gap-2 text-xs ${
+                          <article
+                            className={`w-full rounded-[1.4rem] border px-5 py-4 shadow-[0_18px_55px_-38px_rgba(15,23,42,0.85)] ${
                               message.isUser
-                                ? "justify-end text-cyan-50/75"
-                                : "text-slate-500 dark:text-slate-400"
+                                ? "rounded-br-md border-cyan-500/60 bg-[linear-gradient(135deg,#047857,#0e7490)] text-white dark:border-cyan-300/40 dark:bg-[linear-gradient(135deg,rgba(20,184,166,0.6),rgba(6,182,212,0.42))]"
+                                : "rounded-bl-md border-slate-200/80 bg-white/80 text-slate-800 dark:border-white/10 dark:bg-white/[0.07] dark:text-slate-100"
                             }`}
                           >
-                            {message.timestamp}
                             {message.isUser ? (
-                              <FiCheckCircle className="size-3.5 text-cyan-100/90" />
-                            ) : null}
-                          </p>
-                        </article>
+                              <p className="whitespace-pre-wrap text-sm leading-7">
+                                {text}
+                              </p>
+                            ) : (
+                              <AssistantMarkdown text={text} />
+                            )}
+                            <p
+                              className={`mt-3 flex items-center gap-2 text-xs ${
+                                message.isUser
+                                  ? "justify-end text-cyan-50/75"
+                                  : "text-slate-500 dark:text-slate-400"
+                              }`}
+                            >
+                              {message.timestamp}
+                              {message.isUser ? (
+                                <FiCheckCircle className="size-3.5 text-cyan-100/90" />
+                              ) : null}
+                            </p>
+                          </article>
+
+                          {followUpSuggestions.length > 0 ? (
+                            <FollowUpSuggestions
+                              disabled={isLoading || !selectedModel}
+                              onSelect={suggestion =>
+                                void sendMessage(suggestion)
+                              }
+                              suggestions={followUpSuggestions}
+                            />
+                          ) : null}
+                        </div>
 
                         {message.isUser ? (
                           <span className="hidden size-11 shrink-0 items-center justify-center rounded-full border border-sky-500/40 bg-sky-500/10 text-sky-700 shadow-[0_0_34px_-18px_rgba(14,165,233,0.95)] dark:border-sky-300/35 dark:bg-sky-300/10 dark:text-sky-200 sm:inline-flex">
@@ -520,6 +542,38 @@ export function ChatRoute() {
           ) : null}
         </Modal>
       ) : null}
+    </div>
+  );
+}
+
+function FollowUpSuggestions({
+  disabled,
+  onSelect,
+  suggestions
+}: {
+  disabled: boolean;
+  onSelect: (suggestion: string) => void;
+  suggestions: string[];
+}) {
+  return (
+    <div className="mt-3 w-full space-y-2">
+      <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-500 dark:text-slate-400">
+        <FiHelpCircle className="size-3.5" />
+        <span>Follow-up suggestions</span>
+      </div>
+      <div className="flex flex-wrap gap-2">
+        {suggestions.map(suggestion => (
+          <button
+            className="max-w-full rounded-full border border-slate-200/80 bg-white/80 px-3 py-1.5 text-left text-xs font-medium leading-5 text-slate-700 shadow-[0_12px_30px_-24px_rgba(15,23,42,0.7)] transition hover:-translate-y-0.5 hover:border-cyan-500/50 hover:text-slate-950 disabled:pointer-events-none disabled:opacity-60 dark:border-white/10 dark:bg-white/5 dark:text-slate-200 dark:hover:border-cyan-300/50 dark:hover:bg-white/10 dark:hover:text-white"
+            disabled={disabled}
+            key={suggestion}
+            onClick={() => onSelect(suggestion)}
+            type="button"
+          >
+            {suggestion}
+          </button>
+        ))}
+      </div>
     </div>
   );
 }

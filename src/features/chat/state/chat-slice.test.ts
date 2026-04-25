@@ -78,4 +78,49 @@ describe("chatSlice", () => {
     ).toBe("Senior Software Engineer");
     expect(selectConversationHistory(store.getState())).toEqual([]);
   });
+
+  it("stores follow-up suggestions on completed assistant messages", () => {
+    const store = createAppStore();
+    const userMessage = createChatMessage({
+      isUser: true,
+      text: "What projects used React?"
+    });
+    const assistantMessage = createChatMessage({
+      isUser: false,
+      text: ""
+    });
+
+    store.dispatch(messageSendStarted({assistantMessage, userMessage}));
+    store.dispatch(
+      assistantMessageCompleted({
+        answer: "Erdogan used React in portfolio and analytics work.",
+        followUpSuggestions: [
+          "Which portfolio features?",
+          "What analytics work?",
+          "Which backend tools?"
+        ],
+        messageId: assistantMessage.id
+      })
+    );
+
+    const completedMessage = selectChatMessages(store.getState()).find(
+      message => message.id === assistantMessage.id
+    );
+
+    expect(completedMessage?.followUpSuggestions).toEqual([
+      "Which portfolio features?",
+      "What analytics work?",
+      "Which backend tools?"
+    ]);
+
+    store.dispatch(messageSendFinished());
+
+    expect(selectConversationHistory(store.getState())).toEqual([
+      {role: "user", content: "What projects used React?"},
+      {
+        role: "assistant",
+        content: "Erdogan used React in portfolio and analytics work."
+      }
+    ]);
+  });
 });

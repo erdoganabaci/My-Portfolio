@@ -72,10 +72,19 @@ const chatSlice = createSlice({
   reducers: {
     assistantMessageCompleted(
       state,
-      action: PayloadAction<{answer: string; messageId: string}>
+      action: PayloadAction<{
+        answer: string;
+        followUpSuggestions?: string[];
+        messageId: string;
+      }>
     ) {
       updateMessageText(state, action.payload.messageId, (currentText) =>
         action.payload.answer || currentText
+      );
+      updateMessageFollowUpSuggestions(
+        state,
+        action.payload.messageId,
+        action.payload.followUpSuggestions ?? []
       );
       updateMessageStatus(state, action.payload.messageId, "completed");
     },
@@ -336,6 +345,25 @@ function updateMessageStatus(
   if (message) {
     message.status = status;
   }
+}
+
+function updateMessageFollowUpSuggestions(
+  state: ChatState,
+  messageId: string,
+  suggestions: string[]
+) {
+  const message = state.messages.find((item) => item.id === messageId);
+
+  if (!message) {
+    return;
+  }
+
+  const normalizedSuggestions = suggestions
+    .map((suggestion) => suggestion.trim())
+    .filter(Boolean);
+
+  message.followUpSuggestions =
+    normalizedSuggestions.length > 0 ? normalizedSuggestions : undefined;
 }
 
 function getInitialMessageStatus({

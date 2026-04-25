@@ -1,10 +1,14 @@
 import {z} from "zod";
 import {getAskQuestionStreamUrl} from "@/features/chat/api/chat-api-url";
-import type {ConversationHistoryMessage} from "@/features/chat/types";
+import type {
+  AskQuestionResult,
+  ConversationHistoryMessage
+} from "@/features/chat/types";
 
 const responseSchema = z
   .object({
     answer: z.string().optional(),
+    followUpSuggestions: z.array(z.string()).optional(),
     text: z.string().optional()
   })
   .refine(
@@ -20,7 +24,8 @@ const tokenEventSchema = z.object({
 });
 
 const doneEventSchema = z.object({
-  answer: z.string()
+  answer: z.string(),
+  followUpSuggestions: z.array(z.string()).optional()
 });
 
 const errorEventSchema = z.object({
@@ -41,7 +46,7 @@ export async function askQuestion({
   onToken,
   question,
   vectorData
-}: AskQuestionInput) {
+}: AskQuestionInput): Promise<AskQuestionResult> {
   const response = await fetch(getAskQuestionStreamUrl(), {
     body: JSON.stringify({
       conversationHistory,
@@ -66,7 +71,10 @@ export async function askQuestion({
 
   const parsedResponse = responseSchema.parse(await response.json());
 
-  return parsedResponse.answer ?? parsedResponse.text ?? "";
+  return {
+    answer: parsedResponse.answer ?? parsedResponse.text ?? "",
+    followUpSuggestions: parsedResponse.followUpSuggestions ?? []
+  };
 }
 
 async function readAnswerStream(
@@ -77,6 +85,7 @@ async function readAnswerStream(
   const decoder = new TextDecoder();
   let buffer = "";
   let answer = "";
+  let followUpSuggestions: string[] = [];
 
   try {
     while (true) {
@@ -96,13 +105,14 @@ async function readAnswerStream(
           continue;
         }
 
-        const eventAnswer = handleStreamEvent(event, token => {
+        const eventResult = handleStreamEvent(event, token => {
           answer += token;
           onToken?.(token);
         });
 
-        if (eventAnswer !== null) {
-          answer = eventAnswer;
+        if (eventResult !== null) {
+          answer = eventResult.answer;
+          followUpSuggestions = eventResult.followUpSuggestions;
         }
       }
     }
@@ -111,18 +121,22 @@ async function readAnswerStream(
     if (buffer.trim()) {
       const event = parseSseEvent(buffer);
       if (event) {
-        const eventAnswer = handleStreamEvent(event, token => {
+        const eventResult = handleStreamEvent(event, token => {
           answer += token;
           onToken?.(token);
         });
 
-        if (eventAnswer !== null) {
-          answer = eventAnswer;
+        if (eventResult !== null) {
+          answer = eventResult.answer;
+          followUpSuggestions = eventResult.followUpSuggestions;
         }
       }
     }
 
-    return answer;
+    return {
+      answer,
+      followUpSuggestions
+    };
   } finally {
     reader.releaseLock();
   }
@@ -149,7 +163,7 @@ function parseSseEvent(eventText: string) {
 function handleStreamEvent(
   event: {event: string; data: string},
   onToken: (token: string) => void
-) {
+): AskQuestionResult | null {
   if (event.event === "token") {
     const {token} = tokenEventSchema.parse(JSON.parse(event.data));
     onToken(token);
@@ -157,7 +171,12 @@ function handleStreamEvent(
   }
 
   if (event.event === "done") {
-    return doneEventSchema.parse(JSON.parse(event.data)).answer;
+    const doneEvent = doneEventSchema.parse(JSON.parse(event.data));
+
+    return {
+      answer: doneEvent.answer,
+      followUpSuggestions: doneEvent.followUpSuggestions ?? []
+    };
   }
 
   if (event.event === "error") {

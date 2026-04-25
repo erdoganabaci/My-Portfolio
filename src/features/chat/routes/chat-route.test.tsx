@@ -148,7 +148,7 @@ describe("ChatRoute", () => {
       createStreamResponse([
         'event: token\ndata: {"token":"Erdogan works across "}\n\n',
         'event: token\ndata: {"token":"frontend and backend."}\n\n',
-        'event: done\ndata: {"answer":"Erdogan works across frontend and backend."}\n\n'
+        'event: done\ndata: {"answer":"Erdogan works across frontend and backend.","followUpSuggestions":["Which frontend projects?","Which backend tools?"]}\n\n'
       ])
     );
 
@@ -157,6 +157,60 @@ describe("ChatRoute", () => {
         screen.getByText("Erdogan works across frontend and backend.")
       ).toBeInTheDocument();
     });
+    expect(screen.getByText("Follow-up suggestions")).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", {
+        name: "Which frontend projects?"
+      })
+    ).toBeInTheDocument();
+  });
+
+  it("auto-sends a selected follow-up suggestion", async () => {
+    const user = userEvent.setup();
+    const requestBodies: unknown[] = [];
+
+    vi.spyOn(globalThis, "fetch").mockImplementation((input, init) => {
+      if (getFetchUrl(input).endsWith("/getAvailableModels")) {
+        return Promise.resolve(
+          new Response(JSON.stringify(modelPayload), {status: 200})
+        );
+      }
+
+      requestBodies.push(parseJsonRequestBody(init?.body));
+
+      return Promise.resolve(
+        createStreamResponse([
+          requestBodies.length === 1
+            ? 'event: done\ndata: {"answer":"Erdogan used React.","followUpSuggestions":["Which React projects?"]}\n\n'
+            : 'event: done\ndata: {"answer":"React appears in portfolio work."}\n\n'
+        ])
+      );
+    });
+
+    renderWithProviders(<ChatRoute />, {route: "/chat"});
+
+    await screen.findByRole("button", {name: /gpt-4o/i});
+
+    await user.type(
+      screen.getByPlaceholderText(
+        "Ask about Erdogan's experience, education, skills, or projects..."
+      ),
+      "Which tools did Erdogan use?"
+    );
+    await user.click(screen.getByRole("button", {name: /send/i}));
+
+    const suggestion = await screen.findByRole("button", {
+      name: "Which React projects?"
+    });
+    await waitFor(() => expect(suggestion).toBeEnabled());
+    await user.click(suggestion);
+    await screen.findByText("React appears in portfolio work.");
+
+    expect(requestBodies[1]).toEqual(
+      expect.objectContaining({
+        question: "Which React projects?"
+      })
+    );
   });
 
   it("sends the previous completed turn as follow-up context", async () => {

@@ -48,7 +48,7 @@ describe("askQuestion", () => {
       createStreamResponse([
         'event: token\ndata: {"token":"A parsed "}\n\n',
         'event: token\ndata: {"token":"answer"}\n\n',
-        'event: done\ndata: {"answer":"A parsed answer"}\n\n'
+        'event: done\ndata: {"answer":"A parsed answer","followUpSuggestions":["What projects?","Which tools?"]}\n\n'
       ])
     );
 
@@ -57,7 +57,7 @@ describe("askQuestion", () => {
       {role: "assistant" as const, content: "It was Senior Software Engineer."}
     ];
 
-    const answer = await askQuestion({
+    const result = await askQuestion({
       conversationHistory,
       model: "openai/gpt-4o",
       onToken,
@@ -65,7 +65,10 @@ describe("askQuestion", () => {
       vectorData: [{pageContent: "profile"}]
     });
 
-    expect(answer).toBe("A parsed answer");
+    expect(result).toEqual({
+      answer: "A parsed answer",
+      followUpSuggestions: ["What projects?", "Which tools?"]
+    });
     expect(onToken).toHaveBeenNthCalledWith(1, "A parsed ");
     expect(onToken).toHaveBeenNthCalledWith(2, "answer");
     expect(fetchMock).toHaveBeenCalledWith(
@@ -97,7 +100,10 @@ describe("askQuestion", () => {
         question: "What does Erdogan do?",
         vectorData: [{pageContent: "profile"}]
       })
-    ).resolves.toBe("A local answer");
+    ).resolves.toEqual({
+      answer: "A local answer",
+      followUpSuggestions: []
+    });
 
     expect(fetchMock).toHaveBeenCalledWith(
       "https://example.com/functions/askQuestionStream",
